@@ -100,11 +100,23 @@ public class MyMemoryAllocationTest {
 	@Test
 	public void testNFAlloc() {
 		MyMemoryAllocation mal = prepHoles("NF");
+		//free->[2,3]->[7,2]->[10,1]->[12,2]
+		//used->[1,1]->[5,2]->[9,1]->[11,1]
 		assert(mal.alloc(1)==2);
+		//free->[3,2]->[7,2]->[10,1]->[12,2]
+		//used->[1,1]->[2,1]->[5,2]->[9,1]->[11,1]
 		assert(mal.alloc(2)==7);
+		//free->[3,2]->[10,1]->[12,2]
+		//used->[1,1]->[2,1]->[5,2]->[7,2]->[9,1]->[11,1]
 		assert(mal.alloc(2)==12);
+		//free->[3,2]->[10,1]
+		//used->[1,1]->[2,1]->[5,2]->[7,2]->[9,1]->[11,1]->[12,2]
 		assert(mal.alloc(3)==0); //also failed case ! fragments!
+		//free->[3,2]->[10,1]
+		//used->[1,1]->[2,1]->[5,2]->[7,2]->[9,1]->[11,1]->[12,2]
 		assert(mal.alloc(1)==3); //wrap around
+		//free->[4,1]->[10,1]
+		//used->[1,1]->[2,1]->[3,1]->[5,2]->[7,2]->[9,1]->[11,1]->[12,2]
 	}
 
 	@Before
@@ -116,10 +128,19 @@ public class MyMemoryAllocationTest {
 	@Test
 	public void testFree1() {
 		MyMemoryAllocation mal = prepHoles("FF");
+		//free->[2,3]->[7,2]->[10,1]->[12,2]
+		//used->[1,1]->[5,2]->[9,1]->[11,1]
 		mal.free(2);//check if there is an error message
-		assert(errContent.toString().length() != 0);
+		//free->[2,3]->[7,2]->[10,1]->[12,2]
+		//used->[1,1]->[5,2]->[9,1]->[11,1]
+		assert(errContent.toString().length() != 0); //error message occurs
 		mal.free(1); 
+		//free->[1,1]->[2,3]->[7,2]->[10,1]->[12,2]
+		//used->[5,2]->[9,1]->[11,1]
 		assert(mal.alloc(4)==1);
+		//free->[1,1]->[2,2]->[7,2]->[10,1]->[12,2]
+		//used->[4,1]->[5,2]->[9,1]->[11,1]
+
 	}
 	@After
 	public void restoreStreams() {
@@ -129,9 +150,17 @@ public class MyMemoryAllocationTest {
 	@Test
 	public void testFree2() {
 		MyMemoryAllocation mal = prepHoles("FF");
+		//free->[2,3]->[7,2]->[10,1]->[12,2]
+		//used->[1,1]->[5,2]->[9,1]->[11,1]
 		mal.free(9);
+		//free->[2,3]->[7,2]->[9,1]->[10,1]->[12,2]
+		//used->[1,1]->[5,2]->[11,1]
 		mal.free(5);
+		//free->[2,3]->[5,1]->[7,2]->[9,1]->[10,1]->[12,2]
+		//used->[1,1]->[6,1]->[11,1]
 		assert(mal.max_size() == 9);
+		//free->[2,3]->[5,1]->[7,2]->[9,1]->[10,1]->[12,2]
+		//used->[1,1]->[6,1]->[11,1]
 	}
 	
 	@Test
