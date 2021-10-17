@@ -19,18 +19,44 @@ public class MyMemoryAllocationTest {
 	}
 	private MyMemoryAllocation prepHoles(String algo) {
 		MyMemoryAllocation mal= new MyMemoryAllocation(14, algo);
+		//free->[1,13]
+		//used->
 		mal.alloc(1);
+		//free->[2,12]
+		//used->[1,1]
 		mal.alloc(3);
+		//free->[5,9]
+		//used->[1,1]->[2,3]
 		mal.alloc(2);
+		//free->[7,7]
+		//used->[1,1]->[2,3]->[5,2]
 		mal.alloc(2);
+		//free->[9,5]
+		//used->[1,1]->[2,3]->[5,2]->[7,2]
 		mal.alloc(1);
+		//free->[10,4]
+		//used->[1,1]->[2,3]->[5,2]->[7,2]->[9,1]
 		mal.alloc(1);
+		//free->[11,3]
+		//used->[1,1]->[2,3]->[5,2]->[7,2]->[9,1]->[10,1]
 		mal.alloc(1);
+		//free->[12,2]
+		//used->[1,1]->[2,3]->[5,2]->[7,2]->[9,1]->[10,1]->[11,1]
 		mal.alloc(2);
+		//free->
+		//used->[1,1]->[2,3]->[5,2]->[7,2]->[9,1]->[10,1]->[11,1]->[12,2]
 		mal.free(2);
+		//free->[2,3]
+		//used->[1,1]->[5,2]->[7,2]->[9,1]->[10,1]->[11,1]->[12,2]
 		mal.free(7);
+		//free->[2,3]->[7,2]
+		//used->[1,1]->[5,2]->[9,1]->[10,1]->[11,1]->[12,2]
 		mal.free(10);
+		//free->[2,3]->[7,2]->[10,1]
+		//used->[1,1]->[5,2]->[9,1]->[11,1]->[12,2]
 		mal.free(12);
+		//free->[2,3]->[7,2]->[10,1]->[12,2]
+		//used->[1,1]->[5,2]->[9,1]->[11,1]
 		assert(mal.size() == 8);
 		assert(mal.max_size() == 3);
 		return mal;
@@ -38,18 +64,38 @@ public class MyMemoryAllocationTest {
 	@Test
 	public void testFFAlloc() {
 		MyMemoryAllocation mal = prepHoles("FF");
+		//free->[2,3]->[7,2]->[10,1]->[12,2]
+		//used->[1,1]->[5,2]->[9,1]->[11,1]
 		assert(mal.alloc(1)==2);
+		//free->[3,2]->[7,2]->[10,1]->[12,2]
+		//used->[1,1]->[2,1]->[5,2]->[9,1]->[11,1]
 		assert(mal.alloc(2)==3);
+		//free->[7,2]->[10,1]->[12,2]
+		//used->[1,1]->[2,1]->[3,2]->[5,2]->[9,1]->[11,1]
 		assert(mal.alloc(2)==7);
+		//free->[10,1]->[12,2]
+		//used->[1,1]->[2,1]->[3,2]->[5,2]->[7,2]->[9,1]->[11,1]
 		assert(mal.alloc(3)==0); //failed case ! fragments!
+		//free->[10,1]->[12,2]
+		//used->[1,1]->[2,1]->[3,2]->[5,2]->[7,2]->[9,1]->[11,1]
 	}
 	@Test
 	public void testBFAlloc() {
 		MyMemoryAllocation mal = prepHoles("BF");
+		//free->[2,3]->[7,2]->[10,1]->[12,2]
+		//used->[1,1]->[5,2]->[9,1]->[11,1]
 		assert(mal.alloc(1)==10);
+		//free->[2,3]->[7,2]->[12,2]
+		//used->[1,1]->[5,2]->[9,1]->[10,1]->[11,1]
 		assert(mal.alloc(2)==7);
+		//free->[2,3]->[12,2]
+		//used->[1,1]->[5,2]->[7,2]->[9,1]->[10,1]->[11,1]
 		assert(mal.alloc(2)==12);
-		assert(mal.alloc(3)==2); //success! less fragments! 
+		//free->[2,3]
+		//used->[1,1]->[5,2]->[7,2]->[9,1]->[10,1]->[11,1]->[12,2]
+		assert(mal.alloc(3)==2); //success! less fragments!
+		//free->
+		//used->[1,1]->[2,3]->[5,2]->[7,2]->[9,1]->[10,1]->[11,1]->[12,2]
 	}
 	@Test
 	public void testNFAlloc() {
