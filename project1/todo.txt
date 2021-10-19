@@ -1,5 +1,0 @@
-Task 2: 
-create MyMemoryAllocation class that implements MemoryAllocation (given)
--it does first fit, best fit, next fit
-draw UML class diagram
---run tests?
