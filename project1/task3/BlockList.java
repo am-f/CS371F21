@@ -1,4 +1,6 @@
-public class BlockList implements BlockContainer{
+package task3;
+
+public class BlockList implements BlockContainer {
 
 //Begin Fields
 

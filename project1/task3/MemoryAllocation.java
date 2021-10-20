@@ -1,3 +1,6 @@
+package task3;
+
+//SOURCE-CODE: DO NOT TOUCH
 public abstract class MemoryAllocation {
 	
 	/*
@@ -7,8 +10,8 @@ public abstract class MemoryAllocation {
 	}
 
 	/*
-	 * Allocates memory with defined size. 
-         * If the memory is evailable the function returns pointer (offset) of the begining of allocated memory. 
+	 * Allocates memory with defined size.
+         * If the memory is evailable the function returns pointer (offset) of the begining of allocated memory.
          * Otherwise it returns 0.
 	 */
 	abstract public int alloc(int size);

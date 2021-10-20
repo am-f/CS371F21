@@ -1,3 +1,5 @@
+package task3;
+
 public interface BlockContainer {
 /*This interface is intended to represent the methods the OurMemoryAllocator will use,
  so that we can later upgrade the LinkedList implementation to a Tree-based implementation

@@ -1,0 +1,2 @@
+Allison: We need to figure out how we're doing public/private classes and methods (making individual attributes private but everything else public? idk). For now I've only put some access modifiers in Block class, I haven't touched it anywhere else
+Allison: We should also update our UML diagram with any changes we make
