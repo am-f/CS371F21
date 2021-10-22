@@ -15,6 +15,15 @@ public class Block implements Comparable<Block> {
         this.left = null;
         this.right = null;
     }
+    //Allison: I added this second constructor so we can initialize all the values in a block if
+    // we already know them, and we can use the getters and setters later if we need to change
+    // values
+    public Block(int offset, int size, Block left, Block right) {
+        this.offset = offset;
+        this.size = size;
+        this.left = left;
+        this.right = left;
+    }
     public int getSize() {
         return size;
     }
@@ -30,16 +39,21 @@ public class Block implements Comparable<Block> {
     public Block getLeft() {
         return left;
     }
+    public void setLeft(Block left) { this.left = left; } //added this (not in uml)
     public Block getRight() {
         return right;
     }
+    public void setRight(Block right) {
+        this.right = right;
+    } //added this (not in uml)
 
     //TODO:
+    //Question: what are we comparing by?
     public int compareTo(Block b) {
         return -1;
     }
     //TODO:
     public String toString() {
-        return "aaaaahhh";
+        return "Block: offset=" + offset + ", size=" + size;
     }
 }
