@@ -24,13 +24,13 @@ public class BlockList implements BlockContainer {
         this.maxSize = 0;
         this.totalSize = 0;
         this.blockCount = 0;
-        this.memSize = -1;
+        this.memSize = 0;
     }
 
 
 
-    public BlockList(int sizeOfMemory) {
-        
+    public BlockList(int sizeOfMemory) { //I don't think we want this constructor here, since
+        // initializing with sizeOfMemory applies to FreeList only
         this.head = null;
         this.tail = null;
         this.maxSize = 0;

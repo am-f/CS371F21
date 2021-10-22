@@ -1,2 +1,5 @@
 Allison: We need to figure out how we're doing public/private classes and methods (making individual attributes private but everything else public? idk). For now I've only put some access modifiers in Block class, I haven't touched it anywhere else
 Allison: We should also update our UML diagram with any changes we make
+Allison: What do we use offset 0 for? (in freelist)
+Allison: We need to implement iterator before we can do BlockList insert, delete, print, or any of the search methods (right?)
+Allison: I'd like to change String operatingMode to char operatingMode (and just use the first letter of FF, BF, and NF) so we can use = instead of .equals()

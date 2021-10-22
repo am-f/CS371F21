@@ -10,6 +10,8 @@ public class OurMemoryAllocator extends MemoryAllocation {
         super(mem_size, algorithm); //I'm not sure what this actually does since the constructor in super is empty,
         // but it gives me an error unless I put that there
         free = new FreeList(mem_size);
+        used = new UsedList();
+        operatingMode = algorithm;
 
 
     }
@@ -21,13 +23,11 @@ public class OurMemoryAllocator extends MemoryAllocation {
     public void free(int addr) {
 
     }
-    //TODO:
     public int size() {
-        return -1;
+        return free.getTotalSize();
     }
-    //TODO:
     public int max_size() {
-        return -1;
+        return free.getMaxSize();
     }
     //TODO:
     public void print() {
