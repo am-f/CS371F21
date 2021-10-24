@@ -1,5 +1,3 @@
-package task3;
-
 public class UsedList extends BlockList {
     public UsedList() {
         head = null;

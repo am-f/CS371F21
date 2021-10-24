@@ -1,4 +1,3 @@
-package task3;
 
 //SOURCE-CODE: DO NOT TOUCH
 public abstract class MemoryAllocation {
