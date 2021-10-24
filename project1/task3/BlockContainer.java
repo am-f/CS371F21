@@ -34,13 +34,15 @@ public interface BlockContainer {
     // address 20 to address 30, but a.right=b and b.left=a)
 
     //Answer (Marty): I meant the former, but the list ordering should enforce the latter being true if the former is true
+    // JYM: adjacency means contiguous address space, not location in the list.
     boolean calculateAdjacency(Block a, Block b);
 
     //Return false if there is at least one node
     //Question: wouldn't we return false if there's >=1 node? and return true if it's empty (0
     // nodes)?
 
-    //Answer (Marty: Yep. Flubbed that one
+    //Answer (Marty): Yep. Flubbed that one
+    //JYM: what do you do with just 1 node?
     boolean isEmpty();
     
 //End Methods
