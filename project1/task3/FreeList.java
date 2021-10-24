@@ -37,9 +37,12 @@ public class FreeList extends BlockList {
         return true;
 
     }
-    boolean shrink(Block b, int newSize) {
+    boolean shrinkBy(Block b, int shrinkByVal) { //I changed the method so the argument is how
+        // much memory we want to remove. This effectively splits the memory into two blocks and
+        // removes the first one
         try { //is this how we want to implement "return false if shrink failed" ?
-            b.setSize(newSize);
+            b.setOffset(b.getOffset()+shrinkByVal);
+            b.setSize(b.getSize()-shrinkByVal);
         } catch (Exception e) {
             System.err.println("ERROR: shrink failed"); //I'm not sure if I did this right. I've
             // only ever used System.out, never System.err
