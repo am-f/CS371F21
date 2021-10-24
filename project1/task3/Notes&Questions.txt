@@ -1,5 +1,10 @@
 Allison: We need to figure out how we're doing public/private classes and methods (making individual attributes private but everything else public? idk). For now I've only put some access modifiers in Block class, I haven't touched it anywhere else
+Jun: answered in code.
 Allison: We should also update our UML diagram with any changes we make
+Jun: Changes for better are encouraged.
 Allison: What do we use offset 0 for? (in freelist)
+Jun: why offset 0 would ever appear in freelist?
 Allison: We need to implement iterator before we can do BlockList insert, delete, print, or any of the search methods (right?)
+Jun: this is a read-only iterator for client(MemoryAllocator) to query the state of available blocks. It could be done before insert/delete/print. However, it can't be tested until insert/delete is done because you need insert/delete to build the list.
 Allison: I'd like to change String operatingMode to char operatingMode (and just use the first letter of FF, BF, and NF) so we can use = instead of .equals()
+Jun: I am not sure if this is possible as BF/FF/NF is already contracted with MemoryAllocationTest. You could do an internal convertion such as "FF"->'F' if you so wish, but unit tests are not going to change the way it calls.
