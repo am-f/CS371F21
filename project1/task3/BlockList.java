@@ -1,5 +1,6 @@
+import java.util.Iterator;
 
-public class BlockList implements BlockContainer {
+public class BlockList implements BlockContainer, Iterable<Block> {
 
 //Begin Fields
 
@@ -102,6 +103,15 @@ public class BlockList implements BlockContainer {
     //TODO: Complete method
     public boolean isEmpty(){
         return true;
+    }
+
+
+    
+    @Override
+    //returns instance of an iterator
+    public Iterator<Block> iterator() {
+        
+        return new BlockIterator(this);
     };
     
 //End Methods
