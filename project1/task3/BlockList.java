@@ -1,5 +1,6 @@
+import java.util.Iterator;
 
-public class BlockList implements BlockContainer {
+public class BlockList implements BlockContainer, Iterable<Block> {
 
 //Begin Fields
 
@@ -46,6 +47,7 @@ public class BlockList implements BlockContainer {
 
     //Insert the block in the correct order
     //TODO: Enforce checking against max mem size
+    //Partially completed by Marty
     public boolean insert(int offset, int size) {
 
         Block b = new Block(offset, size);
@@ -178,6 +180,15 @@ public class BlockList implements BlockContainer {
         else{
             return false;
         }
+    }
+
+
+    
+    @Override
+    //returns instance of an iterator
+    public Iterator<Block> iterator() {
+        
+        return new BlockIterator(this);
     };
 
     //Completed by Marty
