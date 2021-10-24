@@ -9,7 +9,7 @@ public interface BlockContainer {
  //Begin Methods
 
     //Insert the block in the correct order
-    boolean insert(Block b);
+    boolean insert(int offset, int size);
 
     //Delete the block at the given address
     boolean delete(int address);

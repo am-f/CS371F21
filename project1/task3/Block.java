@@ -38,6 +38,18 @@ public class Block implements Comparable<Block> {
     public void setOffset(int offset) {
         this.offset = offset;
     }
+
+    //Marty:
+    //The left boundary (first occupied memory slot) of a block is always its offset
+    //The right boundary of a block (the final memory slot it occupies) will be (size - 1) blocks after the offset
+    //For example, a block at position 1 with size 10 will occupy the slots |1,2,3,4,5,6,7,8,9,10|
+    //The left boundary of the block is 1, the offset, and the right bound is 10, which is (1 + 10 - 1)
+    //The block at offset 13 with size 8 will occupy slots |13,14,15,16,17,18,19,20|
+    //The left boundary of the block is 13, the offset, and the right bound is 20, which is (13 + 8 - 1)
+    public int getRightBoundary(){
+        return this.offset + this.size - 1;
+    }
+
     public Block getLeft() {
         return left;
     }
@@ -52,9 +64,9 @@ public class Block implements Comparable<Block> {
 
     //TODO:
     //Question: what are we comparing by?
-
     //Answer (Marty): The ordering of the list, which I believe we agreed was by offset
 
+    //Marty:
     //Returns -1 if this block is a lower offset than the parameter block
     //Returns 0 if the blocks have the same offset
     //Returns 1 if this block has a greater offset than the passed block

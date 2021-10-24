@@ -45,9 +45,69 @@ public class BlockList implements BlockContainer {
 //Begin Methods
 
     //Insert the block in the correct order
-    //TODO: Complete method
-    public boolean insert(Block b) {
-        return true;
+    //TODO: Enforce checking against max mem size
+    public boolean insert(int offset, int size) {
+
+        Block b = new Block(offset, size);
+
+        //If the list is empty, insert the block as both head and tail
+        if(this.head == null){
+        
+            this.head = b;
+            this.tail = b;
+
+            this.head.setLeft(null);
+            this.head.setRight(null);
+
+            this.blockCount++;
+            return true;
+        }
+        else {
+            Block current;
+            current = this.head;
+
+            //Handle case where new block is inserted at the front, as the new head
+            if(b.getRightBoundary() < current.getOffset()){
+                b.setRight(current);
+                current.setLeft(b);
+
+                this.head = b;
+                this.blockCount++;
+                return true;
+            }
+
+
+            //Handle the case where the new block is inserted between two existing blocks
+            while (current.getRight() != null){
+
+                if (current.getRightBoundary() < b.getOffset() && b.getRightBoundary() < current.getRight().getOffset()){
+                    b.setLeft(current);
+                    current.getRight().setLeft(b);
+                    b.setRight(current.getRight());
+                    current.setRight(b);
+
+                    this.blockCount++;
+                    return true;
+                }
+
+                current = current.getRight();
+            }
+            
+            //Handle the case where the new block is inserted at the very end, as the new tail
+            if(current.getRightBoundary() < b.getOffset() && b.getRightBoundary() < this.memSize - 1){
+                current.setRight(b);
+                b.setLeft(current);
+                
+                this.tail = b;
+                this.blockCount++;
+                return true;
+            }
+            
+            //If no previous case inserted the block
+            return false;
+            
+        }
+        
     };
 
 
@@ -91,9 +151,20 @@ public class BlockList implements BlockContainer {
 
 
     //Determine if the two blocks are adjacent based on their size and offset
-    //TODO: Complete method
+    //Completed by Marty
+    //Blocks are adjacent if the left edge of one block touches the right edge of another block
+    //since we are working with integers, touching means a difference of 1 between them
     public boolean calculateAdjacency(Block a, Block b) {
-        return true;
+
+        if(b.getOffset() - a.getRightBoundary() == 1){//if the left edge of b is 1 greater than the right edge of a
+            return true;
+        }
+        else if (a.getOffset() - b.getRightBoundary() == 1){//if the left edge of a is 1 greater than the right edge of b
+            return true;
+        }
+        else{
+            return false;
+        }
     };
 
 
@@ -101,8 +172,32 @@ public class BlockList implements BlockContainer {
     //Return true if there is at least one node
     //TODO: Complete method
     public boolean isEmpty(){
-        return true;
+        if(this.head == null){
+            return true;
+        }
+        else{
+            return false;
+        }
     };
+
+    //Completed by Marty
+    public void print(){
+        Block current = head;
+
+        System.out.print("{");
+
+        while(current != null){
+            System.out.print("[" + current.toString() + "]");
+
+            current = current.getRight();
+
+            if(current != null){
+                System.out.print(", ");
+            }
+        }
+
+        System.out.println("}");
+    }
     
 //End Methods
 }
