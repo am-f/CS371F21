@@ -3,6 +3,8 @@ public class Block implements Comparable<Block> {
     //Note from Allison: I'm not sure if putting private in front of these attributes is the right/standard way to do this, but if we
     // keep the class public and don't modify variable access at all then the attributes will be public, which we don't want (I don't
     // think).  We also need to do something similar to any class currently declared public if we want private attributes in it
+
+    //Marty: Professor Jun said that it is correct to decalre them private, we need to have a specific justification to declare them as public
     private int offset;
     private int size;
     private Block left;
@@ -38,7 +40,10 @@ public class Block implements Comparable<Block> {
     public Block getLeft() {
         return left;
     }
-    public void setLeft(Block left) { this.left = left; } //added this (not in uml)
+    public void setLeft(Block left) {
+         this.left = left;
+    } //added this (not in uml)
+
     public Block getRight() {
         return right;
     }
@@ -48,6 +53,8 @@ public class Block implements Comparable<Block> {
 
     //TODO:
     //Question: what are we comparing by?
+
+    //Answer (Marty): The ordering of the list, which I believe we agreed was by offset
     public int compareTo(Block b) {
         return -1;
     }
