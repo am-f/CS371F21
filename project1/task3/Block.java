@@ -41,16 +41,14 @@ public class Block implements Comparable<Block> {
     public Block getLeft() {
         return left;
     }
-    public void setLeft(Block left) {
-         this.left = left;
-    } //added this (not in uml)
-
+    public void setLeft(Block left) { this.left = left; } //added this (not in uml) --> now in uml
+    
     public Block getRight() {
         return right;
     }
     public void setRight(Block right) {
         this.right = right;
-    } //added this (not in uml)
+    } //added this (not in uml) --> now in uml
 
     //TODO:
     //Question: what are we comparing by?
