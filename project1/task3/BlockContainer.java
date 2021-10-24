@@ -1,4 +1,3 @@
-package task3;
 
 public interface BlockContainer {
 /*This interface is intended to represent the methods the OurMemoryAllocator will use,

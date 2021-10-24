@@ -1,4 +1,3 @@
-package task3;
 
 public class Block implements Comparable<Block> {
     //Note from Allison: I'm not sure if putting private in front of these attributes is the right/standard way to do this, but if we

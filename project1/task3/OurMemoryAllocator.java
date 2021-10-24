@@ -1,5 +1,3 @@
-package task3;
-
 public class OurMemoryAllocator extends MemoryAllocation {
 
     String operatingMode;
