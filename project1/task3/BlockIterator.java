@@ -1,5 +1,12 @@
-import java.util.Iterator;
+//import java.util.Iterator;
+public interface BlockIterator {
+    public boolean hasNext();
+    public Object next();
 
+
+
+}
+/*
 class BlockIterator implements Iterator<Block>{
      Block current; 
 
@@ -21,6 +28,5 @@ class BlockIterator implements Iterator<Block>{
         current = current.getRight();
         return temp;
     }
-    
-
 }
+*/

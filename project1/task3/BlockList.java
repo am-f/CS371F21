@@ -1,18 +1,17 @@
 import java.util.Iterator;
 
-public class BlockList implements BlockContainer, Iterable<Block> {
+public class BlockList implements BlockContainer/*, Iterable<Block>*/ {
 
 //Begin Fields
 
     Block head;
     Block tail;
-    int maxSize;
+    int maxSize; //change this to maxBlock
     int totalSize;
     int blockCount;
     int memSize;
 
 //End Fields
-
 
 
 //Begin Constructors
@@ -40,8 +39,6 @@ public class BlockList implements BlockContainer, Iterable<Block> {
     }
     
 //End Constructors
-
-
 
 //Begin Methods
 
@@ -78,7 +75,6 @@ public class BlockList implements BlockContainer, Iterable<Block> {
                 return true;
             }
 
-
             //Handle the case where the new block is inserted between two existing blocks
             while (current.getRight() != null){
 
@@ -91,7 +87,6 @@ public class BlockList implements BlockContainer, Iterable<Block> {
                     this.blockCount++;
                     return true;
                 }
-
                 current = current.getRight();
             }
             
@@ -110,7 +105,7 @@ public class BlockList implements BlockContainer, Iterable<Block> {
             
         }
         
-    };
+    }
 
 
 
@@ -127,31 +122,26 @@ public class BlockList implements BlockContainer, Iterable<Block> {
                 this.blockCount--;
                 return true;
             }
-
             current = current.getRight();
         }
-
         return false; //if no block was found during the while loop
     };
 
 
 
-    //Return all blocks with the given address
+    //Return block at given offset
     //Completed by Marty
-    public BlockContainer searchByAddress(int address) {
-        BlockList returnList = new BlockList(this.memSize);
-
+    public Block searchByOffset(int offset) {
         Block current = this.head;
 
         while(current != null){
-            if (current.getOffset() == address){
-                returnList.insert(current.getOffset(), current.getSize());
-            } 
-
+            if (current.getOffset() == offset){
+                return current;
+            }
             current = current.getRight();
         }
-
-        return returnList;
+        System.err.print("ERROR: block with offset " + offset + " does not exist");
+        return null;
     };
 
 
@@ -220,14 +210,42 @@ public class BlockList implements BlockContainer, Iterable<Block> {
         }
     }
 
+    public BlockListIterator iterator() {
+        return new BlockListIterator(this);
+    }
 
-    
+    public class BlockListIterator implements BlockIterator {
+        Block current;
+
+        //initializes pointer to head of Blocklist for iteration
+        public BlockListIterator(BlockList list){
+            current = list.head;
+        }
+
+        @Override
+        //returns false if next element doesn't exist
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        @Override
+        //Returns current block and updates pointer
+        public Block next() {
+            Block temp = new Block(current.getOffset(), current.getSize());
+            current = current.getRight();
+            return temp;
+        }
+    }
+
+    /*
     @Override
     //returns instance of an iterator
     public Iterator<Block> iterator() {
         
         return new BlockIterator(this);
     };
+    */
+
 
     //Prints out every block in the list
     //Completed by Marty

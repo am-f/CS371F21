@@ -16,14 +16,26 @@ public class OurMemoryAllocator extends MemoryAllocation {
     }
     
     //Partially completed by Marty
+    //Partially completed by Allison
     //TODO: needs testing, definitely does not work as currently implemented
     public int alloc(int size) {
+        BlockList.BlockListIterator iter = new free.iterator(); //WHY ERROR?
         
         if(this.operatingMode.equals("FF")){
 
+            Block freeFFBlock;
+            int FFSize = 0;
+            while(FFSize < size) {
+                //NOT DONE
+            }
+
+
+
             BlockList available = (BlockList) free.searchBySize(size);//Downcasting the BlockContainer to a BlockList
 
-            BlockIterator iter = (BlockIterator) available.iterator();//iterate through the blocks with size >= passed size argument
+            //BlockList.BlockListIterator iter = (BlockList.BlockListIterator) available.iterator();
+            //iterate
+            // through the blocks with size >= passed size argument
 
             Block current;
 

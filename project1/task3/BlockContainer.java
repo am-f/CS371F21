@@ -15,7 +15,7 @@ public interface BlockContainer {
     boolean delete(int address);
 
     //Return all blocks with the given address
-    BlockContainer searchByAddress(int address);
+    Block searchByOffset(int offset);
 
     //Return all blocks with size greater than or equal to the given size
     BlockContainer searchBySize(int size);
