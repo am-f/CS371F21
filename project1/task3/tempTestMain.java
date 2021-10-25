@@ -1,9 +1,11 @@
+import BlockList.*;
+
 public class tempTestMain{
 
     public static void main(String[] args){
         
 
-        BlockList myList = new BlockList(100);
+        BlockList myList = new FreeList(100);
         System.out.println("List created successfully");
         myList.print();
 
@@ -20,7 +22,7 @@ public class tempTestMain{
         System.out.println("should print true: " + myList.insert(40, 10));
         myList.print();
 
-        System.out.println("Deleting Block: " + myList.delete(15));
+        System.out.println("Deleting BlockList.Block: " + myList.delete(15));
         myList.print();
 
         ((BlockList) myList.searchBySize(10)).print();

@@ -1,3 +1,5 @@
+import BlockList.*;
+
 public class OurMemoryAllocator extends MemoryAllocation {
 
     String operatingMode;
@@ -19,8 +21,8 @@ public class OurMemoryAllocator extends MemoryAllocation {
     //Partially completed by Allison
     //TODO: needs testing, definitely does not work as currently implemented
     public int alloc(int size) {
-        BlockList.BlockListIterator iter = new free.iterator(); //WHY ERROR?
-        
+        BlockList.BlockListIterator iter = free.iterator(); //WHY ERROR?
+
         if(this.operatingMode.equals("FF")){
 
             Block freeFFBlock;
@@ -31,9 +33,10 @@ public class OurMemoryAllocator extends MemoryAllocation {
 
 
 
-            BlockList available = (BlockList) free.searchBySize(size);//Downcasting the BlockContainer to a BlockList
+            //BlockList.BlockList available = (BlockList.BlockList) free.searchBySize(size);//Downcasting the
+            // BlockList.BlockContainer to a BlockList.BlockList
 
-            //BlockList.BlockListIterator iter = (BlockList.BlockListIterator) available.iterator();
+            //BlockList.BlockList.BlockListIterator iter = (BlockList.BlockList.BlockListIterator) available.iterator();
             //iterate
             // through the blocks with size >= passed size argument
 
