@@ -46,7 +46,7 @@ public class BlockList implements BlockContainer, Iterable<Block> {
 //Begin Methods
 
     //Insert the block in the correct order
-    //TODO: Enforce checking against max mem size
+    //TODO: Enforce checking against max mem size for the case where the block is inserted between two blocks
     //Partially completed by Marty
     public boolean insert(int offset, int size) {
 
@@ -114,26 +114,64 @@ public class BlockList implements BlockContainer, Iterable<Block> {
 
 
 
-    //Delete the block at the given address
-    //TODO: Complete method
+    //Deletes the first block at the given address
+    //Completed by Marty
     public boolean delete(int address) {
-        return true;
+        Block current = this.head;
+
+        while(current != null){
+            if(current.getOffset() == address){
+                current.getLeft().setRight(current.getRight());//Make the block on the left point to the block on the right
+                current.getRight().setLeft(current.getLeft());//Make the block on the right point to the block on the left
+
+                this.blockCount--;
+                return true;
+            }
+
+            current = current.getRight();
+        }
+
+        return false; //if no block was found during the while loop
     };
 
 
 
     //Return all blocks with the given address
-    //TODO: Complete method
+    //Completed by Marty
     public BlockContainer searchByAddress(int address) {
-        return new BlockList();
+        BlockList returnList = new BlockList(this.memSize);
+
+        Block current = this.head;
+
+        while(current != null){
+            if (current.getOffset() == address){
+                returnList.insert(current.getOffset(), current.getSize());
+            } 
+
+            current = current.getRight();
+        }
+
+        return returnList;
     };
 
 
 
     //Return all blocks with size greater than or equal to the given size
-    //TODO: Complete method
+    //Completed by Marty
     public BlockContainer searchBySize(int size) {
-        return new BlockList();
+        BlockList returnList = new BlockList(this.memSize);
+
+        Block current = this.head;
+
+        while(current != null){
+            if (current.getSize() >= size){
+                returnList.insert(current.getOffset(), current.getSize());
+            } 
+
+            current = current.getRight();
+        }
+
+        return returnList;
     };
 
 
@@ -171,8 +209,8 @@ public class BlockList implements BlockContainer, Iterable<Block> {
 
 
 
-    //Return true if there is at least one node
-    //TODO: Complete method
+    //Return true if there are no nodes, false if there is at least one node
+    //Completed by Marty
     public boolean isEmpty(){
         if(this.head == null){
             return true;
@@ -191,6 +229,7 @@ public class BlockList implements BlockContainer, Iterable<Block> {
         return new BlockIterator(this);
     };
 
+    //Prints out every block in the list
     //Completed by Marty
     public void print(){
         Block current = head;

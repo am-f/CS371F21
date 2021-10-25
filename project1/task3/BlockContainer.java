@@ -37,12 +37,7 @@ public interface BlockContainer {
     // JYM: adjacency means contiguous address space, not location in the list.
     boolean calculateAdjacency(Block a, Block b);
 
-    //Return false if there is at least one node
-    //Question: wouldn't we return false if there's >=1 node? and return true if it's empty (0
-    // nodes)?
-
-    //Answer (Marty): Yep. Flubbed that one
-    //JYM: what do you do with just 1 node?
+    //Return true if there are no nodes, false if there is at least one node
     boolean isEmpty();
     
 //End Methods

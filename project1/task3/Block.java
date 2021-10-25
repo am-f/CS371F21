@@ -62,7 +62,7 @@ public class Block implements Comparable<Block> {
         this.right = right;
     } //added this (not in uml) --> now in uml
 
-    //TODO:
+    
     //Question: what are we comparing by?
     //Answer (Marty): The ordering of the list, which I believe we agreed was by offset
 

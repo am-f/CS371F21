@@ -3,15 +3,9 @@ public class tempTestMain{
     public static void main(String[] args){
         
 
-        BlockList myList = new BlockList();
+        BlockList myList = new BlockList(100);
         System.out.println("List created successfully");
         myList.print();
-
-        Block block1 = new Block(11, 9);
-
-        Block block2 = new Block(1, 10);
-
-        System.out.println("Blocks are adjacent: " + myList.calculateAdjacency(block1, block2));
 
         System.out.println("should print true: " + myList.insert(20, 10));
         myList.print();
@@ -21,5 +15,14 @@ public class tempTestMain{
         myList.print();
         System.out.println("should print true: " + myList.insert(10, 3));
         myList.print();
+        System.out.println("should print true: " + myList.insert(15, 3));
+        myList.print();
+        System.out.println("should print true: " + myList.insert(40, 10));
+        myList.print();
+
+        System.out.println("Deleting Block: " + myList.delete(15));
+        myList.print();
+
+        ((BlockList) myList.searchBySize(10)).print();
     }
 }
