@@ -14,3 +14,6 @@ Allison: I'd like to change String operatingMode to char operatingMode (and just
         Marty: The string typing was part of the spec we were given, I don't think we have license to change that
         Jun: I am not sure if this is possible as BF/FF/NF is already contracted with MemoryAllocationTest. 
              You could do an internal convertion such as "FF"->'F' if you so wish, but unit tests are not going to change the way it calls.
+
+
+Marty: I don't think the lists should track max memSize. While implementing the methods I feel like it makes sense for that to be an Allocator-level function

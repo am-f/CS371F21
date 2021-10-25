@@ -37,6 +37,8 @@ public class FreeList extends BlockList {
         return true;
 
     }
+
+    //TODO: Will not work with iterator, as we would be shrinking iterator's shallow copy of the block rather than the list's copy of the block
     boolean shrinkBy(Block b, int shrinkByVal) { //I changed the method so the argument is how
         // much memory we want to remove. This effectively splits the memory into two blocks and
         // removes the first one
@@ -49,5 +51,11 @@ public class FreeList extends BlockList {
             return false;
         }
         return true;
+    }
+
+    //TODO: Complete method to adjust totalSize and maxSize
+    public boolean insert(int offset, int size){
+        
+        return super.insert(offset, size);
     }
 }

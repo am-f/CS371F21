@@ -3,19 +3,45 @@ public class OurMemoryAllocator extends MemoryAllocation {
     String operatingMode;
     UsedList used;
     FreeList free;
+    int maxMemSize;
     //TODO:
     public OurMemoryAllocator(int mem_size, String algorithm) {
         super(mem_size, algorithm); //I'm not sure what this actually does since the constructor in super is empty,
         // but it gives me an error unless I put that there
-        free = new FreeList(mem_size);
-        used = new UsedList();
-        operatingMode = algorithm;
+        this.free = new FreeList(mem_size);
+        this.used = new UsedList();
+        this.operatingMode = algorithm;
 
-
+        this.maxMemSize = mem_size;
     }
-    //TODO:
+    
+    //Partially completed by Marty
+    //TODO: needs testing, definitely does not work as currently implemented
     public int alloc(int size) {
-        return -1;
+        
+        if(this.operatingMode.equals("FF")){
+
+            BlockList available = (BlockList) free.searchBySize(size);//Downcasting the BlockContainer to a BlockList
+
+            BlockIterator iter = (BlockIterator) available.iterator();//iterate through the blocks with size >= passed size argument
+
+            Block current;
+
+            while(iter.hasNext()){
+                current = iter.next();
+                System.out.println("Considering the following: " + current.toString());
+
+                if(current.getSize() >= size){
+                    free.shrinkBy(current, size);//TODO: Does not currently work because the "current" returned by the iterator is a shallow copy, and we would only be shrinking the copy
+
+                    used.insert(current.getOffset(), size);//Works assuming that the shrinking moves the left boundary of the block further to the right
+
+                    return current.getOffset();//return address of allocated block
+                }
+            }
+        }
+        
+        return 0; //allocation failed
     }
     //TODO:
     public void free(int addr) {
