@@ -25,6 +25,6 @@ public class tempTestMain{
         System.out.println("Deleting BlockList.Block: " + myList.delete(15));
         myList.print();
 
-        ((BlockList) myList.searchBySize(10)).print();
+        //((BlockList) myList.searchBySize(10)).print();
     }
 }

@@ -1,13 +1,13 @@
 import BlockList.*;
 
-public class OurMemoryAllocator extends MemoryAllocation {
+public class MyMemoryAllocation extends MemoryAllocation {
 
     String operatingMode;
     UsedList used;
     FreeList free;
     int maxMemSize;
     //TODO:
-    public OurMemoryAllocator(int mem_size, String algorithm) {
+    public MyMemoryAllocation(int mem_size, String algorithm) {
         super(mem_size, algorithm); //I'm not sure what this actually does since the constructor in super is empty,
         // but it gives me an error unless I put that there
         this.free = new FreeList(mem_size);

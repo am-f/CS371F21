@@ -16,12 +16,12 @@ public class MyMemoryAllocationTest {
 	
 	@Test
 	public void testConstructor() {
-		OurMemoryAllocator mal= new OurMemoryAllocator(500, "FF");
+		MyMemoryAllocation mal= new MyMemoryAllocation(500, "FF");
 		assert(mal.size() == 499);
 		assert(mal.max_size() == 499);
 	}
-	private OurMemoryAllocator prepHoles(String algo) {
-		OurMemoryAllocator mal= new OurMemoryAllocator(14, algo);
+	private MyMemoryAllocation prepHoles(String algo) {
+		MyMemoryAllocation mal= new MyMemoryAllocation(14, algo);
 		//free->[1,13]
 		//used->
 		mal.alloc(1);
@@ -66,7 +66,7 @@ public class MyMemoryAllocationTest {
 	}
 	@Test
 	public void testFFAlloc() {
-		OurMemoryAllocator mal = prepHoles("FF");
+		MyMemoryAllocation mal = prepHoles("FF");
 		//free->[2,3]->[7,2]->[10,1]->[12,2]
 		//used->[1,1]->[5,2]->[9,1]->[11,1]
 		assert(mal.alloc(1)==2);
@@ -84,7 +84,7 @@ public class MyMemoryAllocationTest {
 	}
 	@Test
 	public void testBFAlloc() {
-		OurMemoryAllocator mal = prepHoles("BF");
+		MyMemoryAllocation mal = prepHoles("BF");
 		//free->[2,3]->[7,2]->[10,1]->[12,2]
 		//used->[1,1]->[5,2]->[9,1]->[11,1]
 		assert(mal.alloc(1)==10);
@@ -102,7 +102,7 @@ public class MyMemoryAllocationTest {
 	}
 	@Test
 	public void testNFAlloc() {
-		OurMemoryAllocator mal = prepHoles("NF");
+		MyMemoryAllocation mal = prepHoles("NF");
 		//free->[2,3]->[7,2]->[10,1]->[12,2]
 		//used->[1,1]->[5,2]->[9,1]->[11,1]
 		assert(mal.alloc(1)==2);
@@ -130,7 +130,7 @@ public class MyMemoryAllocationTest {
 
 	@Test
 	public void testFree1() {
-		OurMemoryAllocator mal = prepHoles("FF");
+		MyMemoryAllocation mal = prepHoles("FF");
 		//free->[2,3]->[7,2]->[10,1]->[12,2]
 		//used->[1,1]->[5,2]->[9,1]->[11,1]
 		mal.free(2);//check if there is an error message
@@ -152,7 +152,7 @@ public class MyMemoryAllocationTest {
 	}
 	@Test
 	public void testFree2() {
-		OurMemoryAllocator mal = prepHoles("FF");
+		MyMemoryAllocation mal = prepHoles("FF");
 		//free->[2,3]->[7,2]->[10,1]->[12,2]
 		//used->[1,1]->[5,2]->[9,1]->[11,1]
 		mal.free(9);
@@ -192,7 +192,7 @@ public class MyMemoryAllocationTest {
 	static final int TEST_SIZE_2 = 20;
 	
 	private void end2endTest1(String algo) {
-		OurMemoryAllocator m= new OurMemoryAllocator(SIZE, algo);
+		MyMemoryAllocation m= new MyMemoryAllocation(SIZE, algo);
 		boolean result = true;
 		int ptr[] = new int[SIZE];
 		int p = 0;
@@ -241,7 +241,7 @@ public class MyMemoryAllocationTest {
 	}
 	
 	private void end2endTest2(String algo) {
-		OurMemoryAllocator m= new OurMemoryAllocator(SIZE, algo);
+		MyMemoryAllocation m= new MyMemoryAllocation(SIZE, algo);
 		boolean result = true;
 		int ptr[] = new int[SIZE];
 		int p = 0;
@@ -282,7 +282,7 @@ public class MyMemoryAllocationTest {
 	}
 	
 	private void end2endTest3(String algo) {
-		OurMemoryAllocator m= new OurMemoryAllocator(SIZE, algo);
+		MyMemoryAllocation m= new MyMemoryAllocation(SIZE, algo);
 		boolean result = true;
 		int ptr[] = new int[SIZE];
 		int p = 0;
