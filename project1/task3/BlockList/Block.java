@@ -85,6 +85,8 @@ public class Block implements Comparable<Block> {
         
     }
     public String toString() {
-        return "BlockList.Block: offset=" + offset + ", size=" + size;
+        return "[" + offset + "," + size + "]";
+
+        //return "Block: offset=" + offset + ", size=" + size;
     }
 }

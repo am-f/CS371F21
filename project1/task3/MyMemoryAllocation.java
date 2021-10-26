@@ -11,7 +11,7 @@ public class MyMemoryAllocation extends MemoryAllocation {
         super(mem_size, algorithm); //I'm not sure what this actually does since the constructor in super is empty,
         // but it gives me an error unless I put that there
         this.free = new FreeList(mem_size);
-        this.used = new UsedList();
+        this.used = new UsedList(mem_size);
         this.operatingMode = algorithm;
 
         this.maxMemSize = mem_size;
@@ -25,25 +25,20 @@ public class MyMemoryAllocation extends MemoryAllocation {
         
         if(this.operatingMode.equals("FF")){
 
-            // BlockList available = (BlockList) free.searchBySize(size);//Downcasting the BlockContainer to a BlockList
-
-            // BlockList.BlockListIterator freeIter = (BlockList.BlockListIterator) available.iterator();
-            //iterate
-            // through the blocks with size >= passed size argument
-
             Block current;
 
             while(iter.hasNext()){
                 current = iter.next();
-                System.out.println("Considering the following: " + current.toString());
+                //System.out.println("Considering the following: " + current.toString());
 
                 if(current.getSize() >= size){
-                    //new method either shrinks or deletes node depending on how much space needs allocating
-                    free.shrinkOrDelete(current.getSize());//TODO: Does not currently work because the "current" returned by the iterator is a shallow copy, and we would only be shrinking the copy
-
+                    int blockOffset = current.getOffset();
                     used.insert(current.getOffset(), size);//Works assuming that the shrinking moves the left boundary of the block further to the right
+                    //new method either shrinks or deletes node depending on how much space needs allocating
+                    free.shrinkOrDelete(current.getOffset(), size);
 
-                    return current.getOffset();//return address of allocated block
+
+                    return blockOffset;//return address of allocated block
                 }
             }
         }
@@ -51,17 +46,17 @@ public class MyMemoryAllocation extends MemoryAllocation {
         return 0; //allocation failed
     }
     //TODO:
-    public void free(int addr) {
+    public void free(int offset) {
         BlockList.BlockListIterator iter = used.iterator(); 
         Block usedCurrent;
 
         while(iter.hasNext()){
            usedCurrent = iter.next();
-           System.out.println("Considering the following: " + usedCurrent.toString());
+           //System.out.println("Considering the following: " + usedCurrent.toString());
+           if(usedCurrent.getOffset() == offset){
+               free.insert(offset, usedCurrent.getSize());
+               used.delete(offset);
 
-           if(usedCurrent.getOffset() == addr){
-                used.delete(addr);
-                free.insert(addr, usedCurrent.getSize());
            }
         }
 

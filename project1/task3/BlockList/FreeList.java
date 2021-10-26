@@ -41,7 +41,7 @@ public class FreeList extends BlockList {
 
     }
 
-    //TODO: Will not work with iterator, as we would be shrinking iterator's shallow copy of the block rather than the list's copy of the block
+
     public boolean shrinkBy(Block b, int shrinkByVal) { //I changed the method so the argument is how
         // much memory we want to remove. This effectively splits the memory into two blocks and
         // removes the first one
@@ -113,7 +113,7 @@ public class FreeList extends BlockList {
             }
 
             //Handle the case where the new block is inserted at the very end, as the new tail
-            if(current.getRightBoundary() < b.getOffset() && b.getRightBoundary() < this.memSize - 1){
+            if(current.getRightBoundary() < b.getOffset() && b.getRightBoundary() <= this.memSize - 1){
                 current.setRight(b);
                 b.setLeft(current);
 
@@ -137,10 +137,23 @@ public class FreeList extends BlockList {
         if(b == null) {
             return false;
         }
-        b.getLeft().setRight(b.getRight());//Make the block on the left point to the block
-        // on the right
-        b.getRight().setLeft(b.getLeft());//Make the block on the right point to the block
-        // on the left
+        if(b == head) {
+            head = b.getRight();
+        }
+        if(b == tail) {
+            tail = b.getLeft();
+        }
+        if(blockCount == 1) {
+            return true;
+        }
+        if(b.getLeft() != null) {
+            b.getLeft().setRight(b.getRight());//Make the block on the left point to the block
+            // on the right
+        }
+        if(b.getRight() != null) {
+            b.getRight().setLeft(b.getLeft());//Make the block on the right point to the block
+            // on the left
+        }
         this.blockCount--;
         if(blockCount == 1) {
             return true;

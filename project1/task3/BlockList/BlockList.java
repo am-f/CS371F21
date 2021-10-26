@@ -25,17 +25,17 @@ public class BlockList /*implements BlockContainer*/ {
         this.blockCount = 0;
         this.memSize = 0;
     }
-/*
-    public BlockList.BlockList(int sizeOfMemory) { //I don't think we want this constructor here, since
+
+    public BlockList(int sizeOfMemory) { //I don't think we want this constructor here, since
         // initializing with sizeOfMemory applies to BlockList.FreeList only
         this.head = null;
         this.tail = null;
-        this.maxBlock = null;
-        this.totalSize = 0;
+        //this.maxBlock = null;
+        //this.totalSize = 0;
         this.blockCount = 0;
-        //this.memSize = sizeOfMemory;
+        this.memSize = sizeOfMemory;
     }
-*/
+
 //End Constructors
 
 //Begin Methods
@@ -80,6 +80,7 @@ public class BlockList /*implements BlockContainer*/ {
             //Handle the case where the new block is inserted between two existing blocks
             while (current.getRight() != null){
 
+
                 if (current.getRightBoundary() < b.getOffset() && b.getRightBoundary() < current.getRight().getOffset()){
                     b.setLeft(current);
                     current.getRight().setLeft(b);
@@ -93,7 +94,9 @@ public class BlockList /*implements BlockContainer*/ {
             }
             
             //Handle the case where the new block is inserted at the very end, as the new tail
-            if(current.getRightBoundary() < b.getOffset() && b.getRightBoundary() < this.memSize - 1){
+            int curRight = current.getRightBoundary();
+            int bRight = b.getRightBoundary();
+            if(current.getRightBoundary() < b.getOffset() && b.getRightBoundary() <= this.memSize - 1){
                 current.setRight(b);
                 b.setLeft(current);
                 
@@ -119,10 +122,14 @@ public class BlockList /*implements BlockContainer*/ {
         if(b == null) {
             return false;
         }
-        b.getLeft().setRight(b.getRight());//Make the block on the left point to the block
-        // on the right
-        b.getRight().setLeft(b.getLeft());//Make the block on the right point to the block
-        // on the left
+        if(b.getLeft() != null) {
+            b.getLeft().setRight(b.getRight());//Make the block on the left point to the block
+            // on the right
+        }
+        if(b.getRight() != null) {
+            b.getRight().setLeft(b.getLeft());//Make the block on the right point to the block
+            // on the left
+        }
         this.blockCount--;
         if(blockCount == 1) {
             return true;
@@ -173,6 +180,7 @@ public class BlockList /*implements BlockContainer*/ {
         Block finger = head;
         while(finger != null) {
             total = total + finger.getSize();
+            System.out.println(total);
             finger = finger.getRight();
         }
         return total;
@@ -263,6 +271,7 @@ public class BlockList /*implements BlockContainer*/ {
     //Prints out every block in the list
     //Completed by Marty
     public void print(){
+
         Block current = head;
 
         System.out.print("{");
