@@ -19,21 +19,13 @@ public class OurMemoryAllocator extends MemoryAllocation {
     //Partially completed by Allison
     //TODO: needs testing, definitely does not work as currently implemented
     public int alloc(int size) {
-        BlockList.BlockListIterator iter = new free.iterator(); //WHY ERROR?
+        BlockList.BlockListIterator iter = free.iterator(); 
         
         if(this.operatingMode.equals("FF")){
 
-            Block freeFFBlock;
-            int FFSize = 0;
-            while(FFSize < size) {
-                //NOT DONE
-            }
+            // BlockList available = (BlockList) free.searchBySize(size);//Downcasting the BlockContainer to a BlockList
 
-
-
-            BlockList available = (BlockList) free.searchBySize(size);//Downcasting the BlockContainer to a BlockList
-
-            //BlockList.BlockListIterator iter = (BlockList.BlockListIterator) available.iterator();
+            // BlockList.BlockListIterator freeIter = (BlockList.BlockListIterator) available.iterator();
             //iterate
             // through the blocks with size >= passed size argument
 
@@ -44,7 +36,8 @@ public class OurMemoryAllocator extends MemoryAllocation {
                 System.out.println("Considering the following: " + current.toString());
 
                 if(current.getSize() >= size){
-                    free.shrinkBy(current, size);//TODO: Does not currently work because the "current" returned by the iterator is a shallow copy, and we would only be shrinking the copy
+                    //new method either shrinks or deletes node depending on how much space needs allocating
+                    free.shrinkOrDelete(current.getSize());//TODO: Does not currently work because the "current" returned by the iterator is a shallow copy, and we would only be shrinking the copy
 
                     used.insert(current.getOffset(), size);//Works assuming that the shrinking moves the left boundary of the block further to the right
 
@@ -57,6 +50,18 @@ public class OurMemoryAllocator extends MemoryAllocation {
     }
     //TODO:
     public void free(int addr) {
+        BlockList.BlockListIterator iter = used.iterator(); 
+        Block usedCurrent;
+
+        while(iter.hasNext()){
+           usedCurrent = iter.next();
+           System.out.println("Considering the following: " + usedCurrent.toString());
+
+           if(usedCurrent.getOffset() == addr){
+                used.delete(addr);
+                free.insert(addr, usedCurrent.getSize());
+           }
+        }
 
     }
     public int size() {
@@ -65,7 +70,7 @@ public class OurMemoryAllocator extends MemoryAllocation {
     public int max_size() {
         return free.getMaxSize();
     }
-    //TODO:
+    //TODO: later
     public void print() {
 
     }
