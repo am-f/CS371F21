@@ -1,6 +1,6 @@
 package BlockList;
 
-public class BlockList implements BlockContainer/*, Iterable<BlockList.Block>*/ {
+public class BlockList /*implements BlockContainer*/ {
 
 //Begin Fields
 
@@ -113,27 +113,28 @@ public class BlockList implements BlockContainer/*, Iterable<BlockList.Block>*/ 
     //Deletes the block at the given offset
     //Completed by Marty
     public boolean delete(int offset) {
-        Block current = this.head;
-
-        while(current != null){ //Allison: we could implement this using searchByOffset instead
-            // of this loop if we wanted
-            if(current.getOffset() == offset){
-                current.getLeft().setRight(current.getRight());//Make the block on the left point to the block on the right
-                current.getRight().setLeft(current.getLeft());//Make the block on the right point to the block on the left
-
-                this.blockCount--;
-                return true;
-            }
-            current = current.getRight();
+        return delete(searchByOffset(offset));
+    }
+    protected boolean delete(Block b) {
+        if(b == null) {
+            return false;
         }
-        return false; //if no block was found during the while loop
-    };
+        b.getLeft().setRight(b.getRight());//Make the block on the left point to the block
+        // on the right
+        b.getRight().setLeft(b.getLeft());//Make the block on the right point to the block
+        // on the left
+        this.blockCount--;
+        if(blockCount == 1) {
+            return true;
+        }
+        return true;
+    }
 
 
 
     //Return block at given offset
     //Completed by Marty
-    public Block searchByOffset(int offset) {
+    protected Block searchByOffset(int offset) {
         Block current = this.head;
 
         while(current != null){
@@ -150,7 +151,7 @@ public class BlockList implements BlockContainer/*, Iterable<BlockList.Block>*/ 
 
     //Return all blocks with size greater than or equal to the given size
     //Completed by Marty
-    public BlockContainer searchBySize(int size) {
+    protected BlockList searchBySize(int size) {
         BlockList returnList = new BlockList(/*this.memSize*/);
 
         Block current = this.head;

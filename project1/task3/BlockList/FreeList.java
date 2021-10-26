@@ -133,28 +133,34 @@ public class FreeList extends BlockList {
 
 
     @Override
-    public boolean delete(int offset) {
-        Block current = this.head;
-
-        while(current != null){ //Allison: we could implement this using searchByOffset instead
-            // of this loop if we wanted
-            if(current.getOffset() == offset){
-                current.getLeft().setRight(current.getRight());//Make the block on the left point to the block on the right
-                current.getRight().setLeft(current.getLeft());//Make the block on the right point to the block on the left
-                this.blockCount--;
-                if(blockCount == 1) {
-                    return true;
-                }
-                if(current.getLeft() != null && current.getRight() != null) {
-                    if(calculateAdjacency(current.getLeft(), current.getRight())) {
-                        merge(current.getLeft(), current.getRight());
-                    }
-                }
-                return true;
-            }
-            current = current.getRight();
+    protected boolean delete(Block b) {
+        if(b == null) {
+            return false;
         }
-        return false; //if no block was found during the while loop
+        b.getLeft().setRight(b.getRight());//Make the block on the left point to the block
+        // on the right
+        b.getRight().setLeft(b.getLeft());//Make the block on the right point to the block
+        // on the left
+        this.blockCount--;
+        if(blockCount == 1) {
+            return true;
+        }
+        if(b.getLeft() != null && b.getRight() != null) {
+            if(calculateAdjacency(b.getLeft(), b.getRight())) {
+                merge(b.getLeft(), b.getRight());
+            }
+        }
+        return true;
+    }
+
+    public boolean shrinkOrDelete(int offset, int size) {
+        Block b = searchByOffset(offset);
+        if(b.getSize() == size) {
+            return delete(b);
+        }
+        else {
+            return shrinkBy(b, size);
+        }
     }
 
 }
