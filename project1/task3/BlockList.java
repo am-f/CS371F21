@@ -1,12 +1,10 @@
-package BlockList;
-
 public class BlockList /*implements BlockContainer*/ {
 
 //Begin Fields
 
     protected Block head;
     protected Block tail;
-    //protected BlockList.Block maxBlock;
+    //protected Block maxBlock;
     //protected int totalSize;
     protected int blockCount;
     protected int memSize;
@@ -27,7 +25,7 @@ public class BlockList /*implements BlockContainer*/ {
     }
 
     public BlockList(int sizeOfMemory) { //I don't think we want this constructor here, since
-        // initializing with sizeOfMemory applies to BlockList.FreeList only
+        // initializing with sizeOfMemory applies to FreeList only
         this.head = null;
         this.tail = null;
         //this.maxBlock = null;
@@ -261,9 +259,9 @@ public class BlockList /*implements BlockContainer*/ {
     /*
     @Override
     //returns instance of an iterator
-    public Iterator<BlockList.Block> iterator() {
+    public Iterator<Block> iterator() {
         
-        return new BlockList.BlockIterator(this);
+        return new BlockIterator(this);
     };
     */
 

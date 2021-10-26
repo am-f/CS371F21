@@ -1,5 +1,3 @@
-import BlockList.*;
-
 public class tempTestMain{
 
     public static void main(String[] args){
@@ -172,7 +170,7 @@ public class tempTestMain{
         System.out.println("should print true: " + myList.insert(40, 10));
         myList.print();
 
-        System.out.println("Deleting BlockList.Block: " + myList.delete(15));
+        System.out.println("Deleting Block: " + myList.delete(15));
         myList.print();
 
         //((BlockList) myList.searchBySize(10)).print();

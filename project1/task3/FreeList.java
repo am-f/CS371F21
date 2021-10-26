@@ -1,5 +1,3 @@
-package BlockList;
-
 public class FreeList extends BlockList {
 
     public FreeList(int initialSize) {
