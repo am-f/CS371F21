@@ -20,7 +20,38 @@ public class MyMemoryAllocation extends MemoryAllocation {
     //TODO: needs testing, definitely does not work as currently implemented
     public int alloc(int size) {
         BlockList.BlockListIterator iter = free.iterator(); 
-        
+        if(this.operatingMode.equals("BF")) {
+            Block current;
+            int[] maxBlock = free.getMaxBlock();
+            if(maxBlock[1] < size) {
+                return 0;
+            }
+            while(iter.hasNext()) {
+                current = iter.next();
+                int curSize = current.getSize();
+                int curOffset = current.getOffset();
+                if(curSize - size < maxBlock[1] - size) {
+                    maxBlock[0] = curOffset;
+                    maxBlock[1] = curSize;
+                }
+                else if(curSize - size == maxBlock[1] - size) {
+                    if(curOffset < maxBlock[0]) {
+                        maxBlock[0] = curOffset;
+                        maxBlock[1] = curSize;
+                    }
+                }
+            }
+            used.insert(maxBlock[0], size);//Works assuming that the shrinking moves the left
+            // boundary
+            // of the block further to the right
+            //new method either shrinks or deletes node depending on how much space needs allocating
+            free.shrinkOrDelete(maxBlock[0], size);
+
+
+            return maxBlock[0];//return address of allocated block
+
+
+        }
         if(this.operatingMode.equals("FF")){
 
             Block current;
@@ -63,7 +94,7 @@ public class MyMemoryAllocation extends MemoryAllocation {
         return free.getTotalSize();
     }
     public int max_size() {
-        return free.getMaxSize();
+        return free.getMaxBlock()[1];
     }
     //TODO: later
     public void print() {

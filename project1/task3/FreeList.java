@@ -1,5 +1,6 @@
 public class FreeList extends BlockList {
 
+
     public FreeList(int initialSize) {
         head = new Block(1, initialSize - 1);
         tail = head;

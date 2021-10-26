@@ -156,6 +156,7 @@ public class BlockList /*implements BlockContainer*/ {
 
     //Return all blocks with size greater than or equal to the given size
     //Completed by Marty
+
     protected BlockList searchBySize(int size) {
         BlockList returnList = new BlockList(/*this.memSize*/);
 
@@ -187,18 +188,18 @@ public class BlockList /*implements BlockContainer*/ {
 
 
     //Return the size of the single greatest block in the container
-    public int getMaxSize() {
-        int max = 0;
+    public int[] getMaxBlock() {
         Block finger = head;
+        int[] maxBlock = new int[2];
         while(finger != null) {
-            if(finger.getSize() > max) {
-                max = finger.getSize();
+            if(finger.getSize() > maxBlock[1]) {
+                maxBlock[0] = finger.getOffset();
+                maxBlock[1] = finger.getSize();
             }
             finger = finger.getRight();
         }
-        return max;
+        return maxBlock;
     }
-
 
 
     //Determine if the two blocks are adjacent based on their size and offset

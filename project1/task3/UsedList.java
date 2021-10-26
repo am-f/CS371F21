@@ -1,4 +1,10 @@
 public class UsedList extends BlockList {
+    private Block head;
+    private Block tail;
+    //protected Block maxBlock;
+    //protected int totalSize;
+    private int blockCount;
+    private int memSize;
     public UsedList(int sizeOfMemory) {
         super(sizeOfMemory);
         //head = null;
