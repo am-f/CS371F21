@@ -1,3 +1,5 @@
+import BlockList.*;
+
 public class OurMemoryAllocator extends MemoryAllocation {
 
     String operatingMode;

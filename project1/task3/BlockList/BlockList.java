@@ -1,15 +1,15 @@
-import java.util.Iterator;
+package BlockList;
 
-public class BlockList implements BlockContainer/*, Iterable<Block>*/ {
+public class BlockList implements BlockContainer/*, Iterable<BlockList.Block>*/ {
 
 //Begin Fields
 
-    Block head;
-    Block tail;
-    int maxSize; //change this to maxBlock
-    int totalSize;
-    int blockCount;
-    int memSize;
+    protected Block head;
+    protected Block tail;
+    //protected BlockList.Block maxBlock;
+    //protected int totalSize;
+    protected int blockCount;
+    protected int memSize;
 
 //End Fields
 
@@ -20,31 +20,33 @@ public class BlockList implements BlockContainer/*, Iterable<Block>*/ {
         
         this.head = null;
         this.tail = null;
-        this.maxSize = 0;
-        this.totalSize = 0;
+        //this.maxBlock = null;
+        //this.totalSize = 0;
         this.blockCount = 0;
         this.memSize = 0;
     }
-
-
-
-    public BlockList(int sizeOfMemory) { //I don't think we want this constructor here, since
-        // initializing with sizeOfMemory applies to FreeList only
+/*
+    public BlockList.BlockList(int sizeOfMemory) { //I don't think we want this constructor here, since
+        // initializing with sizeOfMemory applies to BlockList.FreeList only
         this.head = null;
         this.tail = null;
-        this.maxSize = 0;
+        this.maxBlock = null;
         this.totalSize = 0;
         this.blockCount = 0;
-        this.memSize = sizeOfMemory;
+        //this.memSize = sizeOfMemory;
     }
-    
+*/
 //End Constructors
 
 //Begin Methods
 
+
     //Insert the block in the correct order
     //TODO: Enforce checking against max mem size for the case where the block is inserted between two blocks
+    //inre this ^ TODO: I think that's automatically taken care of because we check the
+    // boundaries, and if it doesn't go beyond the boundaries then it can't go beyong max mem size
     //Partially completed by Marty
+
     public boolean insert(int offset, int size) {
 
         Block b = new Block(offset, size);
@@ -99,7 +101,6 @@ public class BlockList implements BlockContainer/*, Iterable<Block>*/ {
                 this.blockCount++;
                 return true;
             }
-            
             //If no previous case inserted the block
             return false;
             
@@ -109,13 +110,14 @@ public class BlockList implements BlockContainer/*, Iterable<Block>*/ {
 
 
 
-    //Deletes the first block at the given address
+    //Deletes the block at the given offset
     //Completed by Marty
-    public boolean delete(int address) {
+    public boolean delete(int offset) {
         Block current = this.head;
 
-        while(current != null){
-            if(current.getOffset() == address){
+        while(current != null){ //Allison: we could implement this using searchByOffset instead
+            // of this loop if we wanted
+            if(current.getOffset() == offset){
                 current.getLeft().setRight(current.getRight());//Make the block on the left point to the block on the right
                 current.getRight().setLeft(current.getLeft());//Make the block on the right point to the block on the left
 
@@ -142,41 +144,53 @@ public class BlockList implements BlockContainer/*, Iterable<Block>*/ {
         }
         System.err.print("ERROR: block with offset " + offset + " does not exist");
         return null;
-    };
+    }
 
 
 
     //Return all blocks with size greater than or equal to the given size
     //Completed by Marty
     public BlockContainer searchBySize(int size) {
-        BlockList returnList = new BlockList(this.memSize);
+        BlockList returnList = new BlockList(/*this.memSize*/);
 
         Block current = this.head;
 
         while(current != null){
             if (current.getSize() >= size){
                 returnList.insert(current.getOffset(), current.getSize());
-            } 
-
+            }
             current = current.getRight();
         }
-
         return returnList;
-    };
+    }
 
 
 
     //Return the total size of all blocks represented by the container
     public int getTotalSize() {
-        return this.totalSize;
+        int total = 0;
+        Block finger = head;
+        while(finger != null) {
+            total = total + finger.getSize();
+            finger = finger.getRight();
+        }
+        return total;
     };
 
 
 
     //Return the size of the single greatest block in the container
     public int getMaxSize() {
-        return this.maxSize;
-    };
+        int max = 0;
+        Block finger = head;
+        while(finger != null) {
+            if(finger.getSize() > max) {
+                max = finger.getSize();
+            }
+            finger = finger.getRight();
+        }
+        return max;
+    }
 
 
 
@@ -222,13 +236,11 @@ public class BlockList implements BlockContainer/*, Iterable<Block>*/ {
             current = list.head;
         }
 
-        @Override
         //returns false if next element doesn't exist
         public boolean hasNext() {
             return current != null;
         }
 
-        @Override
         //Returns current block and updates pointer
         public Block next() {
             Block temp = new Block(current.getOffset(), current.getSize());
@@ -240,9 +252,9 @@ public class BlockList implements BlockContainer/*, Iterable<Block>*/ {
     /*
     @Override
     //returns instance of an iterator
-    public Iterator<Block> iterator() {
+    public Iterator<BlockList.Block> iterator() {
         
-        return new BlockIterator(this);
+        return new BlockList.BlockIterator(this);
     };
     */
 

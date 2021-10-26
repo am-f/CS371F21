@@ -1,3 +1,5 @@
+package BlockList;
+
 //import java.util.Iterator;
 public interface BlockIterator {
     public boolean hasNext();
@@ -7,11 +9,11 @@ public interface BlockIterator {
 
 }
 /*
-class BlockIterator implements Iterator<Block>{
-     Block current; 
+class BlockList.BlockIterator implements Iterator<BlockList.Block>{
+     BlockList.Block current;
 
     //initializes pointer to head of Blocklist for iteration 
-    public BlockIterator(BlockList list){
+    public BlockList.BlockIterator(BlockList.BlockList list){
          current = list.head;
     } 
 
@@ -23,8 +25,8 @@ class BlockIterator implements Iterator<Block>{
 
     @Override
     //Returns current block and updates pointer
-    public Block next() {
-        Block temp = new Block(current.getOffset(), current.getSize());
+    public BlockList.Block next() {
+        BlockList.Block temp = new BlockList.Block(current.getOffset(), current.getSize());
         current = current.getRight();
         return temp;
     }

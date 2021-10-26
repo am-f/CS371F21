@@ -1,3 +1,4 @@
+package BlockList;
 
 public class Block implements Comparable<Block> {
     //Note from Allison: I'm not sure if putting private in front of these attributes is the right/standard way to do this, but if we
@@ -5,7 +6,7 @@ public class Block implements Comparable<Block> {
     // think).  We also need to do something similar to any class currently declared public if we want private attributes in it
 
     //Marty: Professor Jun said that it is correct to decalre them private, we need to have a specific justification to declare them as public
-    //JYM: yes. unless you define Block as protected/package level access, by default, always private attributes
+    //JYM: yes. unless you define BlockList.Block as protected/package level access, by default, always private attributes
     private int offset;
     private int size;
     private Block left;
@@ -84,6 +85,6 @@ public class Block implements Comparable<Block> {
         
     }
     public String toString() {
-        return "Block: offset=" + offset + ", size=" + size;
+        return "BlockList.Block: offset=" + offset + ", size=" + size;
     }
 }
