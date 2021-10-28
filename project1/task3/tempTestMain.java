@@ -1,7 +1,9 @@
 public class tempTestMain{
 
     public static void main(String[] args){
-        MyMemoryAllocation mal= new MyMemoryAllocation(14, "FF");
+
+
+        MyMemoryAllocation mal= new MyMemoryAllocation(14, "NF");
         //free->[1,13]
         //used->
         System.out.println("Start:");
@@ -147,6 +149,7 @@ public class tempTestMain{
         //assert(mal.size() == 8);
         //assert(mal.max_size() == 3);
         //return mal;
+
 
 
 

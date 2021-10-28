@@ -201,6 +201,10 @@ public class BlockList /*implements BlockContainer*/ {
         return maxBlock;
     }
 
+    public int getBlockCount() {
+        return blockCount;
+    }
+
 
     //Determine if the two blocks are adjacent based on their size and offset
     //Completed by Marty
