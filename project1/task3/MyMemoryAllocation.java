@@ -4,7 +4,7 @@ public class MyMemoryAllocation extends MemoryAllocation {
     UsedList used;
     FreeList free;
     int maxMemSize;
-    BlockList.BlockListIterator nfIter;
+    BlockList.BlockListIterator loopingIter;
     //TODO:
     public MyMemoryAllocation(int mem_size, String algorithm) {
         super(mem_size, algorithm); //I'm not sure what this actually does since the constructor in super is empty,
@@ -14,7 +14,8 @@ public class MyMemoryAllocation extends MemoryAllocation {
         this.operatingMode = algorithm;
 
         this.maxMemSize = mem_size;
-        nfIter = free.iterator();
+        loopingIter = free.iterator(true);
+
     }
     
     //Partially completed by Marty
@@ -22,6 +23,7 @@ public class MyMemoryAllocation extends MemoryAllocation {
     //TODO: needs testing, definitely does not work as currently implemented
     public int alloc(int size) {
         BlockList.BlockListIterator iter = free.iterator();
+        //Block nfCurrent = nfIter.next();
 
 
 
@@ -29,7 +31,7 @@ public class MyMemoryAllocation extends MemoryAllocation {
             Block current;
             int[] maxBlock = free.getMaxBlock();
             if(maxBlock[1] < size) {
-                //TODO: system error print
+                System.err.println("large enough block not available");
                 return 0;
             }
             while(iter.hasNext()) {
@@ -77,51 +79,73 @@ public class MyMemoryAllocation extends MemoryAllocation {
                 }
             }
         }
-
         if(this.operatingMode.equals("NF")) {
-            Block current = nfIter.next();
+            Block nfCurrent;
             int blockCount = free.getBlockCount();
             int numBlocksChecked = 0;
             boolean done = false;
+            //Block nfCurrent;
+            if(blockCount == 0) {
+                System.out.println("bc=0, line 90");
+            }
+
             if(blockCount == 1) {
-                int blockOffset = current.getOffset();
-                used.insert(current.getOffset(), size);//Works assuming that the shrinking moves the left boundary of the block further to the right
+                System.out.println("bc=1, line 94");
+                //nfIter.next();
+                nfCurrent = loopingIter.next();
+                int blockOffset = nfCurrent.getOffset();
+                used.insert(nfCurrent.getOffset(), size);//Works assuming that the shrinking moves
+                // the left boundary of the block further to the right
                 //new method either shrinks or deletes node depending on how much space needs allocating
-                free.shrinkOrDelete(current.getOffset(), size);
+                free.shrinkOrDelete(nfCurrent.getOffset(), size);
+                //nfIter = free.iterator();
                 return blockOffset;//return address of allocated block
             }
-            if(nfIter.hasNext()) {
+            if(loopingIter.hasNext()) {
+                System.out.println("nfIter.hasNext(), line 106");
                 do {
+                    System.out.println("inside do while, line 108");
+                    nfCurrent = loopingIter.next();
                     System.out.println("blockCount: " + blockCount + "\t numChecked: " + numBlocksChecked);
                     //System.out.println("Considering the following: " + current.toString());
                     numBlocksChecked++;
-                    if (current.getSize() >= size) {
-                        int blockOffset = current.getOffset();
-                        used.insert(current.getOffset(), size);//Works assuming that the shrinking moves the left boundary of the block further to the right
+                    if (nfCurrent.getSize() >= size) {
+                        System.out.println("found spot, line 114");
+                        int blockOffset = nfCurrent.getOffset();
+                        used.insert(nfCurrent.getOffset(), size);//Works assuming that the
+                        // shrinking moves the left boundary of the block further to the right
                         //new method either shrinks or deletes node depending on how much space needs allocating
-                        free.shrinkOrDelete(current.getOffset(), size);
+                        free.shrinkOrDelete(nfCurrent.getOffset(), size);
 
 
                         return blockOffset;//return address of allocated block
                     }
-
-                    if(!nfIter.hasNext() && numBlocksChecked != blockCount) {
+                    System.out.println("line 124");
+                    /*
+                    if(!loopingIter.hasNext() && numBlocksChecked != blockCount) {
+                        System.out.println("!nfIter.hasNext(), !numBlocks==blockCount, line 126");
                         nfIter = free.iterator();
                     }
-                    current = nfIter.next();
+
+                     */
+                    //nfCurrent = nfIter.next();
                     if(blockCount == numBlocksChecked) {
+                        System.out.println("done=true, line 131");
                         done = true;
                     }
+                    System.out.println("right before while ends, lie 134");
                 } while (!done);
+                System.out.println("line 136");
 
             }
+            System.out.println("line 139");
 
 
 
 
 
         }
-        
+        System.err.println("fail");
         return 0; //allocation failed
     }
     //TODO:

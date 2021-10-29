@@ -70,7 +70,7 @@ public class FreeList extends BlockList {
             this.head.setLeft(null);
             this.head.setRight(null);
 
-            this.blockCount++;
+            blockCount++;
             return true;
         }
         else {
@@ -83,7 +83,7 @@ public class FreeList extends BlockList {
                 current.setLeft(b);
 
                 this.head = b;
-                this.blockCount++;
+                blockCount++;
                 if(calculateAdjacency(b, current)) {
                     merge(b, current);
                 }
@@ -99,7 +99,7 @@ public class FreeList extends BlockList {
                     b.setRight(current.getRight());
                     current.setRight(b);
 
-                    this.blockCount++;
+                    blockCount++;
                     if(calculateAdjacency(b, b.getRight())) {
                         merge(b, b.getRight());
                     }
@@ -117,7 +117,7 @@ public class FreeList extends BlockList {
                 b.setLeft(current);
 
                 this.tail = b;
-                this.blockCount++;
+                blockCount++;
                 if(calculateAdjacency(b, b.getLeft())) {
                     merge(b, b.getLeft());
                 }
@@ -142,7 +142,9 @@ public class FreeList extends BlockList {
         if(b == tail) {
             tail = b.getLeft();
         }
+
         if(blockCount == 1) {
+            blockCount--;
             return true;
         }
         if(b.getLeft() != null) {
@@ -153,10 +155,12 @@ public class FreeList extends BlockList {
             b.getRight().setLeft(b.getLeft());//Make the block on the right point to the block
             // on the left
         }
-        this.blockCount--;
+        blockCount--;
+        /*
         if(blockCount == 1) {
             return true;
         }
+         */
         if(b.getLeft() != null && b.getRight() != null) {
             if(calculateAdjacency(b.getLeft(), b.getRight())) {
                 merge(b.getLeft(), b.getRight());

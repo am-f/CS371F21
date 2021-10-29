@@ -1,12 +1,17 @@
 public class UsedList extends BlockList {
-    private Block head;
-    private Block tail;
+    //private Block head;
+    //private Block tail;
     //protected Block maxBlock;
     //protected int totalSize;
-    private int blockCount;
-    private int memSize;
+    //protected int blockCount;
+    //protected int memSize;
     public UsedList(int sizeOfMemory) {
-        super(sizeOfMemory);
+        head = null;
+        tail = null;
+        //totalSize = initialSize - 1;
+        blockCount = 0;
+        memSize = sizeOfMemory;
+        //super(sizeOfMemory);
         //head = null;
         //tail = null;
         //maxSize = 0;
@@ -24,7 +29,7 @@ public class UsedList extends BlockList {
         return super.insert(offset, size);
     }
     public boolean delete(int offset) {
-        return super.delete(searchByOffset(offset));
+        return super.delete(offset);
     }
 
 

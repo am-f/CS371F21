@@ -124,14 +124,23 @@ public class BlockList /*implements BlockContainer*/ {
             b.getLeft().setRight(b.getRight());//Make the block on the left point to the block
             // on the right
         }
+        else {
+            head = b.getRight();
+        }
         if(b.getRight() != null) {
             b.getRight().setLeft(b.getLeft());//Make the block on the right point to the block
             // on the left
         }
+        else {
+            tail = b.getLeft();
+        }
         this.blockCount--;
+        /*
         if(blockCount == 1) {
             return true;
         }
+
+         */
         return true;
     }
 
@@ -202,7 +211,7 @@ public class BlockList /*implements BlockContainer*/ {
     }
 
     public int getBlockCount() {
-        return blockCount;
+        return this.blockCount;
     }
 
 
@@ -239,22 +248,48 @@ public class BlockList /*implements BlockContainer*/ {
     public BlockListIterator iterator() {
         return new BlockListIterator(this);
     }
+    public BlockListIterator iterator(boolean looping) {
+        return new BlockListIterator(this, true);
+    }
 
     public class BlockListIterator implements BlockIterator {
         Block current;
+        boolean looping;
 
         //initializes pointer to head of Blocklist for iteration
         public BlockListIterator(BlockList list){
             current = list.head;
         }
+        public BlockListIterator(BlockList list, boolean looping) {
+            current = list.head;
+            this.looping = true;
+        }
 
         //returns false if next element doesn't exist
         public boolean hasNext() {
+            if(looping) {
+                if(blockCount != 0) {
+                    return true;
+                }
+            }
+            if(current!=null) {
+                System.out.println("HASNEXT: YES");
+            }
+            else {
+                System.out.println("HASNEXT: NO");
+            }
             return current != null;
         }
 
         //Returns current block and updates pointer
         public Block next() {
+
+            if(looping) {
+                if(current == null) {
+                    current = head;
+                }
+            }
+            System.out.println("RETURNEDBLOCK:" + current.getOffset());
             Block temp = new Block(current.getOffset(), current.getSize());
             current = current.getRight();
             return temp;
