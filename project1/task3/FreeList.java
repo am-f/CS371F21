@@ -58,31 +58,36 @@ public class FreeList extends BlockList {
 
     @Override
     public boolean insert(int offset, int size) {
+        if(offset <= 0 || size <= 0 || size >= memSize) {
+            System.err.println("invalid insert");
+            return false;
+        }
 
         Block b = new Block(offset, size);
 
+
         //If the list is empty, insert the block as both head and tail
-        if(this.head == null){
+        if(head == null){
 
-            this.head = b;
-            this.tail = b;
+            head = b;
+            tail = b;
 
-            this.head.setLeft(null);
-            this.head.setRight(null);
+            head.setLeft(null);
+            head.setRight(null);
 
             blockCount++;
             return true;
         }
         else {
             Block current;
-            current = this.head;
+            current = head;
 
             //Handle case where new block is inserted at the front, as the new head
             if(b.getRightBoundary() < current.getOffset()){
                 b.setRight(current);
                 current.setLeft(b);
 
-                this.head = b;
+                head = b;
                 blockCount++;
                 if(calculateAdjacency(b, current)) {
                     merge(b, current);
@@ -112,7 +117,7 @@ public class FreeList extends BlockList {
             }
 
             //Handle the case where the new block is inserted at the very end, as the new tail
-            if(current.getRightBoundary() < b.getOffset() && b.getRightBoundary() <= this.memSize - 1){
+            if(current.getRightBoundary() < b.getOffset() && b.getRightBoundary() <= memSize - 1){
                 current.setRight(b);
                 b.setLeft(current);
 
@@ -124,6 +129,7 @@ public class FreeList extends BlockList {
                 return true;
             }
             //If no previous case inserted the block
+            System.err.println("failed insert");
             return false;
 
         }
@@ -166,6 +172,8 @@ public class FreeList extends BlockList {
                 merge(b.getLeft(), b.getRight());
             }
         }
+        b.setLeft(null);
+        b.setRight(null);
         return true;
     }
 

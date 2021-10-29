@@ -48,6 +48,10 @@ public class BlockList /*implements BlockContainer*/ {
     public boolean insert(int offset, int size) {
 
         Block b = new Block(offset, size);
+        if(size >= memSize || size <= 0) {
+            System.err.println("invalid size");
+            return false;
+        }
 
         //If the list is empty, insert the block as both head and tail
         if(this.head == null){
@@ -77,6 +81,10 @@ public class BlockList /*implements BlockContainer*/ {
 
             //Handle the case where the new block is inserted between two existing blocks
             while (current.getRight() != null){
+                if(current.getOffset() == offset) {
+                    System.err.println("invalid insert");
+                    return false;
+                }
 
 
                 if (current.getRightBoundary() < b.getOffset() && b.getRightBoundary() < current.getRight().getOffset()){
@@ -103,6 +111,7 @@ public class BlockList /*implements BlockContainer*/ {
                 return true;
             }
             //If no previous case inserted the block
+            System.err.println("failed insert");
             return false;
             
         }
@@ -118,6 +127,7 @@ public class BlockList /*implements BlockContainer*/ {
     }
     protected boolean delete(Block b) {
         if(b == null) {
+            System.err.println("block does not exist");
             return false;
         }
         if(b.getLeft() != null) {
@@ -141,6 +151,8 @@ public class BlockList /*implements BlockContainer*/ {
         }
 
          */
+        b.setLeft(null);
+        b.setRight(null);
         return true;
     }
 
@@ -157,7 +169,7 @@ public class BlockList /*implements BlockContainer*/ {
             }
             current = current.getRight();
         }
-        System.err.print("ERROR: block with offset " + offset + " does not exist");
+        System.err.println("ERROR: block with offset " + offset + " does not exist");
         return null;
     }
 
@@ -188,7 +200,7 @@ public class BlockList /*implements BlockContainer*/ {
         Block finger = head;
         while(finger != null) {
             total = total + finger.getSize();
-            System.out.println(total);
+            //System.out.println(total);
             finger = finger.getRight();
         }
         return total;
@@ -254,7 +266,7 @@ public class BlockList /*implements BlockContainer*/ {
 
     public class BlockListIterator implements BlockIterator {
         Block current;
-        boolean looping;
+        boolean looping = false;
 
         //initializes pointer to head of Blocklist for iteration
         public BlockListIterator(BlockList list){
@@ -262,7 +274,10 @@ public class BlockList /*implements BlockContainer*/ {
         }
         public BlockListIterator(BlockList list, boolean looping) {
             current = list.head;
-            this.looping = true;
+            this.looping = looping;
+        }
+        public void restart() {
+            current = head;
         }
 
         //returns false if next element doesn't exist
@@ -272,12 +287,7 @@ public class BlockList /*implements BlockContainer*/ {
                     return true;
                 }
             }
-            if(current!=null) {
-                System.out.println("HASNEXT: YES");
-            }
-            else {
-                System.out.println("HASNEXT: NO");
-            }
+
             return current != null;
         }
 
@@ -285,11 +295,11 @@ public class BlockList /*implements BlockContainer*/ {
         public Block next() {
 
             if(looping) {
-                if(current == null) {
+                if(current == null && blockCount != 0) {
                     current = head;
                 }
             }
-            System.out.println("RETURNEDBLOCK:" + current.getOffset());
+
             Block temp = new Block(current.getOffset(), current.getSize());
             current = current.getRight();
             return temp;
