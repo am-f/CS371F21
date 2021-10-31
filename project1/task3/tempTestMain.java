@@ -9,10 +9,10 @@ public class tempTestMain{
         System.out.println("Start:");
         System.out.println("size: " + mal.size());
         System.out.println("maxSize: " + mal.max_size());
-        System.out.print("free: ");
-        mal.free.print();
-        System.out.print("used: ");
-        mal.used.print();
+        //System.out.print("free: ");
+        mal.print();
+        //System.out.print("used: ");
+        //mal.used.print();
         System.out.println();
         mal.alloc(1);
         //free->[2,12]
@@ -20,19 +20,19 @@ public class tempTestMain{
         System.out.println("alloc(1)");
         System.out.println("size: " + mal.size());
         System.out.println("maxSize: " + mal.max_size());
-        System.out.print("free: ");
-        mal.free.print();
-        System.out.print("used: ");
-        mal.used.print();
+        //System.out.print("free: ");
+        mal.print();
+        //System.out.print("used: ");
+        //mal.used.print();
         System.out.println();
         mal.alloc(3);
         System.out.println("alloc(3)");
         System.out.println("size: " + mal.size());
         System.out.println("maxSize: " + mal.max_size());
-        System.out.print("free: ");
-        mal.free.print();
-        System.out.print("used: ");
-        mal.used.print();
+       // System.out.print("free: ");
+        mal.print();
+        //System.out.print("used: ");
+        //mal.used.print();
         System.out.println();
         //free->[5,9]
         //used->[1,1]->[2,3]
@@ -40,10 +40,10 @@ public class tempTestMain{
         System.out.println("alloc(2)");
         System.out.println("size: " + mal.size());
         System.out.println("maxSize: " + mal.max_size());
-        System.out.print("free: ");
-        mal.free.print();
-        System.out.print("used: ");
-        mal.used.print();
+       // System.out.print("free: ");
+        mal.print();
+       // System.out.print("used: ");
+       // mal.used.print();
         System.out.println();
         //free->[7,7]
         //used->[1,1]->[2,3]->[5,2]
@@ -51,10 +51,10 @@ public class tempTestMain{
         System.out.println("alloc(2)");
         System.out.println("size: " + mal.size());
         System.out.println("maxSize: " + mal.max_size());
-        System.out.print("free: ");
-        mal.free.print();
-        System.out.print("used: ");
-        mal.used.print();
+        //System.out.print("free: ");
+        mal.print();
+        //System.out.print("used: ");
+        //mal.used.print();
         System.out.println();
         //free->[9,5]
         //used->[1,1]->[2,3]->[5,2]->[7,2]
@@ -62,10 +62,10 @@ public class tempTestMain{
         System.out.println("alloc(1)");
         System.out.println("size: " + mal.size());
         System.out.println("maxSize: " + mal.max_size());
-        System.out.print("free: ");
-        mal.free.print();
-        System.out.print("used: ");
-        mal.used.print();
+        //System.out.print("free: ");
+        mal.print();
+        //System.out.print("used: ");
+        //mal.used.print();
         System.out.println();
         //free->[10,4]
         //used->[1,1]->[2,3]->[5,2]->[7,2]->[9,1]
@@ -73,10 +73,10 @@ public class tempTestMain{
         System.out.println("alloc(1)");
         System.out.println("size: " + mal.size());
         System.out.println("maxSize: " + mal.max_size());
-        System.out.print("free: ");
-        mal.free.print();
-        System.out.print("used: ");
-        mal.used.print();
+        //System.out.print("free: ");
+        mal.print();
+        //System.out.print("used: ");
+        //mal.used.print();
         System.out.println();
         //free->[11,3]
         //used->[1,1]->[2,3]->[5,2]->[7,2]->[9,1]->[10,1]
@@ -84,10 +84,10 @@ public class tempTestMain{
         System.out.println("alloc(1)");
         System.out.println("size: " + mal.size());
         System.out.println("maxSize: " + mal.max_size());
-        System.out.print("free: ");
-        mal.free.print();
-        System.out.print("used: ");
-        mal.used.print();
+        //System.out.print("free: ");
+        mal.print();
+        //System.out.print("used: ");
+        //mal.used.print();
         System.out.println();
         //free->[12,2]
         //used->[1,1]->[2,3]->[5,2]->[7,2]->[9,1]->[10,1]->[11,1]
@@ -95,10 +95,10 @@ public class tempTestMain{
         System.out.println("alloc(2)");
         System.out.println("size: " + mal.size());
         System.out.println("maxSize: " + mal.max_size());
-        System.out.print("free: ");
-        mal.free.print();
-        System.out.print("used: ");
-        mal.used.print();
+        ///System.out.print("free: ");
+        mal.print();
+        //System.out.print("used: ");
+        //mal.used.print();
         System.out.println();
         //free->
         //used->[1,1]->[2,3]->[5,2]->[7,2]->[9,1]->[10,1]->[11,1]->[12,2]
@@ -106,10 +106,10 @@ public class tempTestMain{
         System.out.println("free(2)");
         System.out.println("size: " + mal.size());
         System.out.println("maxSize: " + mal.max_size());
-        System.out.print("free: ");
-        mal.free.print();
-        System.out.print("used: ");
-        mal.used.print();
+        //System.out.print("free: ");
+        mal.print();
+       // System.out.print("used: ");
+       // mal.used.print();
         System.out.println();
         //free->[2,3]
         //used->[1,1]->[5,2]->[7,2]->[9,1]->[10,1]->[11,1]->[12,2]
@@ -117,10 +117,10 @@ public class tempTestMain{
         System.out.println("free(7)");
         System.out.println("size: " + mal.size());
         System.out.println("maxSize: " + mal.max_size());
-        System.out.print("free: ");
-        mal.free.print();
-        System.out.print("used: ");
-        mal.used.print();
+       // System.out.print("free: ");
+        mal.print();
+       // System.out.print("used: ");
+        //mal.used.print();
         System.out.println();
         //free->[2,3]->[7,2]
         //used->[1,1]->[5,2]->[9,1]->[10,1]->[11,1]->[12,2]
@@ -128,10 +128,10 @@ public class tempTestMain{
         System.out.println("free(10)");
         System.out.println("size: " + mal.size());
         System.out.println("maxSize: " + mal.max_size());
-        System.out.print("free: ");
-        mal.free.print();
-        System.out.print("used: ");
-        mal.used.print();
+       // System.out.print("free: ");
+        mal.print();
+        //System.out.print("used: ");
+        //mal.used.print();
         System.out.println();
         //free->[2,3]->[7,2]->[10,1]
         //used->[1,1]->[5,2]->[9,1]->[11,1]->[12,2]
@@ -142,10 +142,10 @@ public class tempTestMain{
         System.out.println("free(12)");
         System.out.println("size: " + mal.size());
         System.out.println("maxSize: " + mal.max_size());
-        System.out.print("free: ");
-        mal.free.print();
-        System.out.print("used: ");
-        mal.used.print();
+       // System.out.print("free: ");
+        mal.print();
+       // System.out.print("used: ");
+       // mal.used.print();
         System.out.println();
         //free->[2,3]->[7,2]->[10,1]->[12,2]
         //used->[1,1]->[5,2]->[9,1]->[11,1]
@@ -155,10 +155,10 @@ public class tempTestMain{
         System.out.println("alloc(1)");
         System.out.println("size: " + mal.size());
         System.out.println("maxSize: " + mal.max_size());
-        System.out.print("free: ");
-        mal.free.print();
-        System.out.print("used: ");
-        mal.used.print();
+       // System.out.print("free: ");
+        mal.print();
+        //System.out.print("used: ");
+       // mal.print();
         System.out.println("READY:::::");
         System.out.print(mal.alloc(1));
 

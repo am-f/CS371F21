@@ -1,16 +1,14 @@
 public class MyMemoryAllocation extends MemoryAllocation {
 
-    String operatingMode;
-    UsedList used;
-    FreeList free;
-    int maxMemSize;
-    BlockList.BlockListIterator iter;
-    //BlockList.BlockListIterator loopingIter;
-    //BlockList.BlockListIterator onetimeIterator;
-
+   private String operatingMode;
+   private UsedList used;
+   private FreeList free;
+   private int maxMemSize;
+   private BlockList.BlockListIterator iter;
+    
     public MyMemoryAllocation(int mem_size, String algorithm) {
-        super(mem_size, algorithm); //I'm not sure what this actually does since the constructor in super is empty,
-        // but it gives me an error unless I put that there
+        super(mem_size, algorithm); 
+
         this.free = new FreeList(mem_size);
         this.used = new UsedList(mem_size);
         this.operatingMode = algorithm;
@@ -18,28 +16,17 @@ public class MyMemoryAllocation extends MemoryAllocation {
         this.maxMemSize = mem_size;
         if(algorithm.equals("NF")) {
             iter = free.iterator(true);
-            //loopingIter = free.iterator(true);
+           
         }
-        else {
-            //iter = free.iterator();
-        }
-
-
+        
     }
     
-    //Partially completed by Marty
-    //Partially completed by Allison
-
     public int alloc(int size) {
         if(size <= 0 || size >= maxMemSize) {
             System.err.println("invalid alloc");
             return 0;
         }
-        //BlockList.BlockListIterator iter = free.iterator();
-        //Block nfCurrent = nfIter.next();
-
-
-
+        
         if(this.operatingMode.equals("BF")) {
 
             iter = free.iterator();
@@ -47,7 +34,7 @@ public class MyMemoryAllocation extends MemoryAllocation {
             int[] maxBlock = free.getMaxBlock();
             if(maxBlock[1] < size) {
                 System.err.println("large enough block not available");
-                //iter.restart();
+               
                 return 0;
             }
             while(iter.hasNext()) {
@@ -70,14 +57,10 @@ public class MyMemoryAllocation extends MemoryAllocation {
                     maxBlock[1] = curSize;
                 }
             }
-            used.insert(maxBlock[0], size);//Works assuming that the shrinking moves the left
-            // boundary
-            // of the block further to the right
-            //new method either shrinks or deletes node depending on how much space needs allocating
+            used.insert(maxBlock[0], size);
+           
             free.shrinkOrDelete(maxBlock[0], size);
-            //iter.restart();
-
-
+           
             return maxBlock[0];//return address of allocated block
 
 
@@ -89,20 +72,16 @@ public class MyMemoryAllocation extends MemoryAllocation {
 
             while(iter.hasNext()){
                 current = iter.next();
-                //System.out.println("Considering the following: " + current.toString());
-
+               
                 if(current.getSize() >= size){
                     int blockOffset = current.getOffset();
-                    used.insert(current.getOffset(), size);//Works assuming that the shrinking moves the left boundary of the block further to the right
-                    //new method either shrinks or deletes node depending on how much space needs allocating
+                    used.insert(current.getOffset(), size);
                     free.shrinkOrDelete(current.getOffset(), size);
 
-
-                    //iter.restart();
                     return blockOffset;//return address of allocated block
                 }
             }
-            //iter.restart();
+           
             System.err.println("error in FF");
         }
         if(this.operatingMode.equals("NF")) {
@@ -110,22 +89,19 @@ public class MyMemoryAllocation extends MemoryAllocation {
             int blockCount = free.getBlockCount();
             int numBlocksChecked = 0;
             boolean done = false;
-            //Block nfCurrent;
+            
             if(blockCount == 0) {
                 System.out.println("bc=0, line 90");
             }
 
             if(blockCount == 1) {
                 System.out.println("bc=1, line 94");
-                //nfIter.next();
                 nfCurrent = iter.next();
-                //nfCurrent = loopingIter.next();
+               
                 int blockOffset = nfCurrent.getOffset();
-                used.insert(nfCurrent.getOffset(), size);//Works assuming that the shrinking moves
-                // the left boundary of the block further to the right
-                //new method either shrinks or deletes node depending on how much space needs allocating
+                used.insert(nfCurrent.getOffset(), size);
                 free.shrinkOrDelete(nfCurrent.getOffset(), size);
-                //nfIter = free.iterator();
+               
                 return blockOffset;//return address of allocated block
             }
             if(iter.hasNext()) {
@@ -134,28 +110,19 @@ public class MyMemoryAllocation extends MemoryAllocation {
                     System.out.println("inside do while, line 108");
                     nfCurrent = iter.next();
                     System.out.println("blockCount: " + blockCount + "\t numChecked: " + numBlocksChecked);
-                    //System.out.println("Considering the following: " + current.toString());
+                    
                     numBlocksChecked++;
                     if (nfCurrent.getSize() >= size) {
                         System.out.println("found spot, line 114");
                         int blockOffset = nfCurrent.getOffset();
-                        used.insert(nfCurrent.getOffset(), size);//Works assuming that the
-                        // shrinking moves the left boundary of the block further to the right
-                        //new method either shrinks or deletes node depending on how much space needs allocating
+                        used.insert(nfCurrent.getOffset(), size);
                         free.shrinkOrDelete(nfCurrent.getOffset(), size);
 
 
                         return blockOffset;//return address of allocated block
                     }
                     System.out.println("line 124");
-                    /*
-                    if(!loopingIter.hasNext() && numBlocksChecked != blockCount) {
-                        System.out.println("!nfIter.hasNext(), !numBlocks==blockCount, line 126");
-                        nfIter = free.iterator();
-                    }
-
-                     */
-                    //nfCurrent = nfIter.next();
+                    
                     if(blockCount == numBlocksChecked) {
                         System.out.println("done=true, line 131");
                         done = true;
@@ -166,10 +133,6 @@ public class MyMemoryAllocation extends MemoryAllocation {
 
             }
             System.out.println("line 139");
-
-
-
-
 
         }
         System.err.println("fail");
@@ -183,16 +146,15 @@ public class MyMemoryAllocation extends MemoryAllocation {
         }
         BlockList.BlockListIterator usedIter = used.iterator();
         Block usedCurrent;
-        //boolean done = false;
-
+        
         while(usedIter.hasNext()){
            usedCurrent = usedIter.next();
-           //System.out.println("Considering the following: " + usedCurrent.toString());
+          
            if(usedCurrent.getOffset() == offset){
                free.insert(offset, usedCurrent.getSize());
                used.delete(offset);
                usedIter.restart();
-               //done = true;
+              
                return;
 
            }
