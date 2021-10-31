@@ -1,18 +1,11 @@
 public class FreeList extends BlockList {
-   // private Block head;
-   // private Block tail;
-   // private int blockCount;
-   //private int memSize;
+  
 
     public FreeList(int initialSize) {
         setHead(new Block(1, initialSize - 1));
-        //head = new Block(1, initialSize - 1);
         setTail(getHead());
-        //tail = head;
         setblockCount(1);
-        //blockCount = 1;
         setmemSize(initialSize);
-        //memSize = initialSize;
     }
 
     public boolean merge(Block a, Block b) {
@@ -33,10 +26,7 @@ public class FreeList extends BlockList {
             }
             r.setLeft(null);
             r.setRight(null);
-            // if(tail == r) {
-            //     tail = l;
-            // }
-            // blockCount--;
+            
             if(getTail() == r){
                 setTail(l);
             }
@@ -66,7 +56,7 @@ public class FreeList extends BlockList {
 
     @Override
     public boolean insert(int offset, int size) {
-        //if(offset <= 0 || size <= 0 || size >= memSize) {
+        
         if(offset <= 0 || size <= 0 || size >= getmemSize()) {
             System.err.println("invalid insert");
             return false;
@@ -76,18 +66,6 @@ public class FreeList extends BlockList {
 
 
         //If the list is empty, insert the block as both head and tail
-
-        // if(head == null){
-
-        //     head = b;
-        //     tail = b;
-
-        //     head.setLeft(null);
-        //     head.setRight(null);
-
-        //     blockCount++;
-        //     return true;
-        // }
         if(getHead() == null){
 
             setHead(b);
@@ -101,7 +79,6 @@ public class FreeList extends BlockList {
         }
         else {
             Block current;
-            //current = head;
             current = getHead();
 
             //Handle case where new block is inserted at the front, as the new head
@@ -109,9 +86,7 @@ public class FreeList extends BlockList {
                 b.setRight(current);
                 current.setLeft(b);
 
-               // head = b;
                 setHead(b);
-                //blockCount++;
                 setblockCount(getBlockCount() + 1);
 
                 if(calculateAdjacency(b, current)) {
@@ -129,7 +104,6 @@ public class FreeList extends BlockList {
                     b.setRight(current.getRight());
                     current.setRight(b);
 
-                    //blockCount++;
                     setblockCount(getBlockCount() + 1);
 
                     if(calculateAdjacency(b, b.getRight())) {
@@ -145,14 +119,11 @@ public class FreeList extends BlockList {
 
             //Handle the case where the new block is inserted at the very end, as the new tail
 
-            //if(current.getRightBoundary() < b.getOffset() && b.getRightBoundary() <= memSize - 1){
             if(current.getRightBoundary() < b.getOffset() && b.getRightBoundary() <= getmemSize() - 1){
                 current.setRight(b);
                 b.setLeft(current);
 
-                //this.tail = b;
                 setTail(b);
-                //blockCount++;
                 setblockCount(getBlockCount() + 1);
 
                 if(calculateAdjacency(b, b.getLeft())) {
@@ -172,24 +143,15 @@ public class FreeList extends BlockList {
         if(b == null) {
             return false;
         }
-        // if(b == head) {
-        //     head = b.getRight();
-        // }
+      
         if(b == getHead()) {
             setHead( b.getRight()); 
         }
 
-        // if(b == tail) {
-        //     tail = b.getLeft();
-        // }
         if(b == getTail()) {
             setTail(b.getLeft()); 
         }
 
-        // if(blockCount == 1) {
-        //     blockCount--;
-        //     return true;
-        // }
         if(getBlockCount() == 1) {
             setblockCount(getBlockCount() -1);
             return true;
@@ -203,7 +165,7 @@ public class FreeList extends BlockList {
             b.getRight().setLeft(b.getLeft());//Make the block on the right point to the block
             // on the left
         }
-        //blockCount--;
+       
         setblockCount(getBlockCount() - 1);
       
         if(b.getLeft() != null && b.getRight() != null) {

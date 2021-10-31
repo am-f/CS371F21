@@ -1,8 +1,7 @@
-public class BlockList /*implements BlockContainer*/ {
+public class BlockList {
 
 //Begin Fields
 
-//If this is the parent list class, these fields should be public or private + free/used list must have their own instance variables
     private Block head;
     private Block tail;
     private int blockCount;
@@ -286,7 +285,7 @@ public class BlockList /*implements BlockContainer*/ {
     }
 
 
-   private class BlockListIterator/* implements BlockIterator*/ {
+   private class BlockListIterator {
         Block current;
         boolean looping = false;
 
