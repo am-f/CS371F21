@@ -2,11 +2,11 @@ public class BlockList /*implements BlockContainer*/ {
 
 //Begin Fields
 
-//If this is the parent list class, these fields should be public or free/used list must have their own instance variables
-    public Block head;
-    public Block tail;
-    public int blockCount;
-    public int memSize;
+//If this is the parent list class, these fields should be public or private + free/used list must have their own instance variables
+    private Block head;
+    private Block tail;
+    private int blockCount;
+    private int memSize;
     public BlockListIterator iterator;
 
 //End Fields
@@ -33,6 +33,40 @@ public class BlockList /*implements BlockContainer*/ {
 //End Constructors
 
 //Begin Methods
+
+    //Getter methods
+    public Block getHead(){
+        return this.head;
+    }
+
+    public Block getTail(){
+        return this.tail;
+    }
+
+    public int getmemSize(){
+        return this.memSize;
+    }
+
+    public int getBlockCount() {
+        return this.blockCount;
+    }
+    
+    //Setter methods
+    public void setHead(Block newval){
+        this.head = newval;
+    }
+
+    public void setTail(Block newval){
+        this.tail = newval;
+    }
+
+    public void setblockCount(int newval){
+        this.blockCount = newval;
+    }
+
+    public void setmemSize(int newval){
+        this.memSize = newval;
+    }
 
 
     //Insert the block in the correct order
@@ -113,7 +147,7 @@ public class BlockList /*implements BlockContainer*/ {
         return delete(searchByOffset(offset));
     }
 
-    protected boolean delete(Block b) {
+    private boolean delete(Block b) {
         if(b == null) {
             System.err.println("block does not exist");
             return false;
@@ -204,11 +238,6 @@ public class BlockList /*implements BlockContainer*/ {
         }
         return maxBlock;
     }
-
-    public int getBlockCount() {
-        return this.blockCount;
-    }
-
 
     //Determine if the two blocks are adjacent based on their size and offset
     //Completed by Marty
