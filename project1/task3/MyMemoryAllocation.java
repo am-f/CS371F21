@@ -1,21 +1,21 @@
 public class MyMemoryAllocation extends MemoryAllocation {
 
    private String operatingMode;
-   private UsedList used;
-   private FreeList free;
+   private UsedList usedList;
+   private FreeList freeList;
    private int maxMemSize;
-   private BlockList.BlockListIterator iter;
+
     
     public MyMemoryAllocation(int mem_size, String algorithm) {
         super(mem_size, algorithm); 
 
-        this.free = new FreeList(mem_size);
-        this.used = new UsedList(mem_size);
+        this.freeList = new FreeList(mem_size);
+        this.usedList = new UsedList(mem_size);
         this.operatingMode = algorithm;
 
         this.maxMemSize = mem_size;
         if(algorithm.equals("NF")) {
-            iter = free.iterator(true);
+            freeList.iterator = freeList.iterator(true);
            
         }
         
@@ -29,16 +29,16 @@ public class MyMemoryAllocation extends MemoryAllocation {
         
         if(this.operatingMode.equals("BF")) {
 
-            iter = free.iterator();
+            freeList.iterator = freeList.iterator();
             Block current;
-            int[] maxBlock = free.getMaxBlock();
+            int[] maxBlock = freeList.getMaxBlock();
             if(maxBlock[1] < size) {
                 System.err.println("large enough block not available");
                
                 return 0;
             }
-            while(iter.hasNext()) {
-                current = iter.next();
+            while(freeList.getHasNext(freeList.iterator)) {
+                current = freeList.getNext(freeList.iterator);
                 int curSize = current.getSize();
                 int curOffset = current.getOffset();
 
@@ -57,9 +57,9 @@ public class MyMemoryAllocation extends MemoryAllocation {
                     maxBlock[1] = curSize;
                 }
             }
-            used.insert(maxBlock[0], size);
+            usedList.insert(maxBlock[0], size);
            
-            free.shrinkOrDelete(maxBlock[0], size);
+            freeList.shrinkOrDelete(maxBlock[0], size);
            
             return maxBlock[0];//return address of allocated block
 
@@ -67,16 +67,16 @@ public class MyMemoryAllocation extends MemoryAllocation {
         }
         if(this.operatingMode.equals("FF")){
 
-            iter = free.iterator();
+            freeList.iterator = freeList.iterator();
             Block current;
 
-            while(iter.hasNext()){
-                current = iter.next();
+            while(freeList.getHasNext(freeList.iterator)){
+                current = freeList.getNext(freeList.iterator);
                
                 if(current.getSize() >= size){
                     int blockOffset = current.getOffset();
-                    used.insert(current.getOffset(), size);
-                    free.shrinkOrDelete(current.getOffset(), size);
+                    usedList.insert(current.getOffset(), size);
+                    freeList.shrinkOrDelete(current.getOffset(), size);
 
                     return blockOffset;//return address of allocated block
                 }
@@ -86,53 +86,38 @@ public class MyMemoryAllocation extends MemoryAllocation {
         }
         if(this.operatingMode.equals("NF")) {
             Block nfCurrent;
-            int blockCount = free.getBlockCount();
+            int blockCount = freeList.getBlockCount();
             int numBlocksChecked = 0;
             boolean done = false;
-            
-            if(blockCount == 0) {
-                System.out.println("bc=0, line 90");
-            }
 
             if(blockCount == 1) {
-                System.out.println("bc=1, line 94");
-                nfCurrent = iter.next();
+                nfCurrent = freeList.getNext(freeList.iterator);
                
                 int blockOffset = nfCurrent.getOffset();
-                used.insert(nfCurrent.getOffset(), size);
-                free.shrinkOrDelete(nfCurrent.getOffset(), size);
+                usedList.insert(nfCurrent.getOffset(), size);
+                freeList.shrinkOrDelete(nfCurrent.getOffset(), size);
                
                 return blockOffset;//return address of allocated block
             }
-            if(iter.hasNext()) {
-                System.out.println("nfIter.hasNext(), line 106");
+            if(freeList.getHasNext(freeList.iterator)) {
                 do {
-                    System.out.println("inside do while, line 108");
-                    nfCurrent = iter.next();
-                    System.out.println("blockCount: " + blockCount + "\t numChecked: " + numBlocksChecked);
-                    
+                    nfCurrent = freeList.getNext(freeList.iterator);
                     numBlocksChecked++;
                     if (nfCurrent.getSize() >= size) {
-                        System.out.println("found spot, line 114");
                         int blockOffset = nfCurrent.getOffset();
-                        used.insert(nfCurrent.getOffset(), size);
-                        free.shrinkOrDelete(nfCurrent.getOffset(), size);
+                        usedList.insert(nfCurrent.getOffset(), size);
+                        freeList.shrinkOrDelete(nfCurrent.getOffset(), size);
 
 
                         return blockOffset;//return address of allocated block
                     }
-                    System.out.println("line 124");
                     
                     if(blockCount == numBlocksChecked) {
-                        System.out.println("done=true, line 131");
                         done = true;
                     }
-                    System.out.println("right before while ends, lie 134");
                 } while (!done);
-                System.out.println("line 136");
 
             }
-            System.out.println("line 139");
 
         }
         System.err.println("fail");
@@ -144,16 +129,16 @@ public class MyMemoryAllocation extends MemoryAllocation {
             System.err.println("invalid offset");
             return;
         }
-        BlockList.BlockListIterator usedIter = used.iterator();
+        usedList.iterator = usedList.iterator();
         Block usedCurrent;
         
-        while(usedIter.hasNext()){
-           usedCurrent = usedIter.next();
+        while(usedList.getHasNext(usedList.iterator)){
+           usedCurrent = usedList.getNext(usedList.iterator);
           
            if(usedCurrent.getOffset() == offset){
-               free.insert(offset, usedCurrent.getSize());
-               used.delete(offset);
-               usedIter.restart();
+               freeList.insert(offset, usedCurrent.getSize());
+               usedList.delete(offset);
+               usedList.doRestart(usedList.iterator);
               
                return;
 
@@ -163,17 +148,17 @@ public class MyMemoryAllocation extends MemoryAllocation {
 
     }
     public int size() {
-        return free.getTotalSize();
+        return freeList.getTotalSize();
     }
     public int max_size() {
-        return free.getMaxBlock()[1];
+        return freeList.getMaxBlock()[1];
     }
 
     public void print() {
         System.out.print("free: ");
-        free.print();
+        freeList.print();
         System.out.print("used: ");
-        used.print();
+        usedList.print();
 
     }
 }

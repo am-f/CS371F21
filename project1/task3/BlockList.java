@@ -7,6 +7,7 @@ public class BlockList /*implements BlockContainer*/ {
     public Block tail;
     public int blockCount;
     public int memSize;
+    public BlockListIterator iterator;
 
 //End Fields
 
@@ -245,25 +246,35 @@ public class BlockList /*implements BlockContainer*/ {
     public BlockListIterator iterator(boolean looping) {
         return new BlockListIterator(this, true);
     }
+    public Block getNext(BlockListIterator iter) {
+        return iter.next();
+    }
+    public boolean getHasNext(BlockListIterator iter) {
+        return iter.hasNext();
+    }
+    public void doRestart(BlockListIterator iter) {
+        iter.restart();
+    }
 
-    protected class BlockListIterator implements BlockIterator {
+
+   private class BlockListIterator/* implements BlockIterator*/ {
         Block current;
         boolean looping = false;
 
         //initializes pointer to head of Blocklist for iteration
-        public BlockListIterator(BlockList list){
+        BlockListIterator(BlockList list){
             current = list.head;
         }
-        public BlockListIterator(BlockList list, boolean looping) {
+        BlockListIterator(BlockList list, boolean looping) {
             current = list.head;
             this.looping = looping;
         }
-        public void restart() {
+        void restart() {
             current = head;
         }
 
         //returns false if next element doesn't exist
-        public boolean hasNext() {
+        boolean hasNext() {
             if(looping) {
                 if(blockCount != 0) {
                     return true;
@@ -274,17 +285,22 @@ public class BlockList /*implements BlockContainer*/ {
         }
 
         //Returns current block and updates pointer
-        public Block next() {
+        Block next() {
 
             if(looping) {
                 if(current == null && blockCount != 0) {
                     current = head;
                 }
             }
+            else if(current == null) {
+                System.err.println("end of list, no next block");
+                return null;
+            }
 
             Block temp = new Block(current.getOffset(), current.getSize());
             current = current.getRight();
             return temp;
+
         }
     }
    
