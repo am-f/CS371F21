@@ -34,6 +34,7 @@ public class BlockList /*implements BlockContainer*/ {
 //End Constructors
 
 //Begin Methods
+    
 
     //Insert the block in the correct order
     public boolean insert(int offset, int size) {
@@ -199,13 +200,13 @@ public class BlockList /*implements BlockContainer*/ {
         return maxBlock;
     }
 
+
     public int getBlockCount() {
         return blockCount;
     }
     public int getMemSize() {
         return memSize;
     }
-
 
     //Determine if the two blocks are adjacent based on their size and offset
     //Completed by Marty
