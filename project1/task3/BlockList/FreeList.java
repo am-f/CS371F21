@@ -1,14 +1,14 @@
-public class FreeList extends BlockList {
-  
+package BlockList;
 
+public class FreeList extends BlockList {
     public FreeList(int initialSize) {
-        setHead(new Block(1, initialSize - 1));
-        setTail(getHead());
-        setblockCount(1);
-        setmemSize(initialSize);
+        head = new Block(1, initialSize - 1);
+        tail = head;
+        blockCount = 1;
+        memSize = initialSize;
     }
 
-    public boolean merge(Block a, Block b) {
+    private boolean merge(Block a, Block b) {
         Block l;
         Block r;
         if(a.getOffset() < b.getOffset()) { 
@@ -26,23 +26,20 @@ public class FreeList extends BlockList {
             }
             r.setLeft(null);
             r.setRight(null);
-            
-            if(getTail() == r){
-                setTail(l);
+            if(tail == r) {
+                tail = l;
             }
-            setblockCount(getBlockCount() - 1);
+            blockCount--;
 
         } catch (Exception e) {
             System.err.println("ERROR: merge failed"); 
             return false;
         }
         return true;
-
     }
 
 
-    public boolean shrinkBy(Block b, int shrinkByVal) { 
-
+    private boolean shrinkBy(Block b, int shrinkByVal) {
         try { 
             Block a = searchByOffset(b.getOffset());
             a.setOffset(a.getOffset()+shrinkByVal);
@@ -56,38 +53,36 @@ public class FreeList extends BlockList {
 
     @Override
     public boolean insert(int offset, int size) {
-        
-        if(offset <= 0 || size <= 0 || size >= getmemSize()) {
+        //if(offset <= 0 || size <= 0 || size >= memSize) {
+        if(offset <= 0 || size <= 0 || size >= memSize) {
             System.err.println("invalid insert");
             return false;
         }
 
         Block b = new Block(offset, size);
-
-
         //If the list is empty, insert the block as both head and tail
-        if(getHead() == null){
 
-            setHead(b);
-            setTail(b);
+        if(head == null){
+            head = b;
+            tail = b;
+            head.setLeft(null);
+            head.setRight(null);
 
-            getHead().setLeft(null);
-            getHead().setRight(null);
-
-            setblockCount(getBlockCount() + 1);
+            blockCount++;
             return true;
         }
+
         else {
             Block current;
-            current = getHead();
+            current = head;
 
             //Handle case where new block is inserted at the front, as the new head
             if(b.getRightBoundary() < current.getOffset()){
                 b.setRight(current);
                 current.setLeft(b);
 
-                setHead(b);
-                setblockCount(getBlockCount() + 1);
+                head = b;
+                blockCount++;
 
                 if(calculateAdjacency(b, current)) {
                     merge(b, current);
@@ -104,7 +99,7 @@ public class FreeList extends BlockList {
                     b.setRight(current.getRight());
                     current.setRight(b);
 
-                    setblockCount(getBlockCount() + 1);
+                    blockCount++;
 
                     if(calculateAdjacency(b, b.getRight())) {
                         merge(b, b.getRight());
@@ -119,12 +114,13 @@ public class FreeList extends BlockList {
 
             //Handle the case where the new block is inserted at the very end, as the new tail
 
-            if(current.getRightBoundary() < b.getOffset() && b.getRightBoundary() <= getmemSize() - 1){
+            //if(current.getRightBoundary() < b.getOffset() && b.getRightBoundary() <= memSize - 1){
+            if(current.getRightBoundary() < b.getOffset() && b.getRightBoundary() <= memSize - 1){
                 current.setRight(b);
                 b.setLeft(current);
 
-                setTail(b);
-                setblockCount(getBlockCount() + 1);
+                tail = b;
+                blockCount++;
 
                 if(calculateAdjacency(b, b.getLeft())) {
                     merge(b, b.getLeft());
@@ -143,17 +139,16 @@ public class FreeList extends BlockList {
         if(b == null) {
             return false;
         }
-      
-        if(b == getHead()) {
-            setHead( b.getRight()); 
+        if(b == head) {
+            head = b.getRight();
         }
 
-        if(b == getTail()) {
-            setTail(b.getLeft()); 
+        if(b == tail) {
+            tail = b.getLeft();
         }
 
-        if(getBlockCount() == 1) {
-            setblockCount(getBlockCount() -1);
+        if(blockCount == 1) {
+            blockCount--;
             return true;
         }
 
@@ -165,8 +160,7 @@ public class FreeList extends BlockList {
             b.getRight().setLeft(b.getLeft());//Make the block on the right point to the block
             // on the left
         }
-       
-        setblockCount(getBlockCount() - 1);
+        blockCount--;
       
         if(b.getLeft() != null && b.getRight() != null) {
             if(calculateAdjacency(b.getLeft(), b.getRight())) {
