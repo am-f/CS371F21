@@ -1,19 +1,21 @@
+import BlockList.*;
+
 public class MyMemoryAllocation extends MemoryAllocation {
 
-   private String operatingMode;
-   private UsedList usedList;
-   private FreeList freeList;
-   private int maxMemSize;
+   String operatingMode;
+   UsedList usedList;
+   FreeList freeList;
+   int maxMemSize;
 
     
     public MyMemoryAllocation(int mem_size, String algorithm) {
         super(mem_size, algorithm); 
 
-        this.freeList = new FreeList(mem_size);
-        this.usedList = new UsedList(mem_size);
-        this.operatingMode = algorithm;
+        freeList = new FreeList(mem_size);
+        usedList = new UsedList(mem_size);
+        operatingMode = algorithm;
 
-        this.maxMemSize = mem_size;
+        maxMemSize = mem_size;
         if(algorithm.equals("NF")) {
             freeList.iterator = freeList.iterator(true);
            
@@ -28,13 +30,11 @@ public class MyMemoryAllocation extends MemoryAllocation {
         }
         
         if(this.operatingMode.equals("BF")) {
-
             freeList.iterator = freeList.iterator();
             Block current;
             int[] maxBlock = freeList.getMaxBlock();
             if(maxBlock[1] < size) {
                 System.err.println("large enough block not available");
-               
                 return 0;
             }
             while(freeList.getHasNext(freeList.iterator)) {
@@ -83,6 +83,7 @@ public class MyMemoryAllocation extends MemoryAllocation {
             }
            
             System.err.println("error in FF");
+            return 0;
         }
         if(this.operatingMode.equals("NF")) {
             Block nfCurrent;
@@ -107,7 +108,6 @@ public class MyMemoryAllocation extends MemoryAllocation {
                         int blockOffset = nfCurrent.getOffset();
                         usedList.insert(nfCurrent.getOffset(), size);
                         freeList.shrinkOrDelete(nfCurrent.getOffset(), size);
-
 
                         return blockOffset;//return address of allocated block
                     }

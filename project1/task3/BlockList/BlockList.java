@@ -1,3 +1,5 @@
+package BlockList;
+
 public class BlockList /*implements BlockContainer*/ {
 
 //Begin Fields
@@ -5,8 +7,8 @@ public class BlockList /*implements BlockContainer*/ {
 //If this is the parent list class, these fields should be public or free/used list must have their own instance variables
     protected Block head;
     protected Block tail;
-    public int blockCount;
-    public int memSize;
+    protected int blockCount;
+    protected int memSize;
     public BlockListIterator iterator;
 
 //End Fields
@@ -15,25 +17,23 @@ public class BlockList /*implements BlockContainer*/ {
 //Begin Constructors
 
     public BlockList() {
-        
-        this.head = null;
-        this.tail = null;
-        this.blockCount = 0;
-        this.memSize = 0;
+        head = null;
+        tail = null;
+        blockCount = 0;
+        memSize = 0;
     }
 
     public BlockList(int sizeOfMemory) { //I don't think we want this constructor here, since
-        // initializing with sizeOfMemory applies to FreeList only
-        this.head = null;
-        this.tail = null;
-        this.blockCount = 0;
-        this.memSize = sizeOfMemory;
+        // initializing with sizeOfMemory applies to BlockList.FreeList only
+        head = null;
+        tail = null;
+        blockCount = 0;
+        memSize = sizeOfMemory;
     }
 
 //End Constructors
 
 //Begin Methods
-
 
     //Insert the block in the correct order
     public boolean insert(int offset, int size) {
@@ -45,28 +45,28 @@ public class BlockList /*implements BlockContainer*/ {
         }
 
         //If the list is empty, insert the block as both head and tail
-        if(this.head == null){
+        if(head == null){
         
-            this.head = b;
-            this.tail = b;
+            head = b;
+            tail = b;
 
-            this.head.setLeft(null);
-            this.head.setRight(null);
+            head.setLeft(null);
+            head.setRight(null);
 
-            this.blockCount++;
+            blockCount++;
             return true;
         }
         else {
             Block current;
-            current = this.head;
+            current = head;
 
             //Handle case where new block is inserted at the front, as the new head
             if(b.getRightBoundary() < current.getOffset()){
                 b.setRight(current);
                 current.setLeft(b);
 
-                this.head = b;
-                this.blockCount++;
+                head = b;
+                blockCount++;
                 return true;
             }
 
@@ -76,27 +76,25 @@ public class BlockList /*implements BlockContainer*/ {
                     System.err.println("invalid insert");
                     return false;
                 }
-
-
                 if (current.getRightBoundary() < b.getOffset() && b.getRightBoundary() < current.getRight().getOffset()){
                     b.setLeft(current);
                     current.getRight().setLeft(b);
                     b.setRight(current.getRight());
                     current.setRight(b);
 
-                    this.blockCount++;
+                    blockCount++;
                     return true;
                 }
                 current = current.getRight();
             }
             
             //Handle the case where the new block is inserted at the very end, as the new tail
-            if(current.getRightBoundary() < b.getOffset() && b.getRightBoundary() <= this.memSize - 1){
+            if(current.getRightBoundary() < b.getOffset() && b.getRightBoundary() <= memSize - 1){
                 current.setRight(b);
                 b.setLeft(current);
                 
-                this.tail = b;
-                this.blockCount++;
+                tail = b;
+                blockCount++;
                 return true;
             }
             //If no previous case inserted the block
@@ -108,12 +106,11 @@ public class BlockList /*implements BlockContainer*/ {
     }
 
     //Deletes the block at the given offset
-    //Completed by Marty
     public boolean delete(int offset) {
         return delete(searchByOffset(offset));
     }
 
-    private boolean delete(Block b) { //public because UsedList needs to access it
+    private boolean delete(Block b) {
         if(b == null) {
             System.err.println("block does not exist");
             return false;
@@ -132,7 +129,7 @@ public class BlockList /*implements BlockContainer*/ {
         else {
             tail = b.getLeft();
         }
-        this.blockCount--;
+        blockCount--;
       
         b.setLeft(null);
         b.setRight(null);
@@ -142,9 +139,8 @@ public class BlockList /*implements BlockContainer*/ {
 
 
     //Return block at given offset
-    //Completed by Marty
     protected Block searchByOffset(int offset) {
-        Block current = this.head;
+        Block current = head;
 
         while(current != null){
             if (current.getOffset() == offset){
@@ -157,14 +153,13 @@ public class BlockList /*implements BlockContainer*/ {
     }
 
 
-
     //Return all blocks with size greater than or equal to the given size
     //Completed by Marty
 
     protected BlockList searchBySize(int size) {
         BlockList returnList = new BlockList(/*this.memSize*/);
 
-        Block current = this.head;
+        Block current = head;
 
         while(current != null){
             if (current.getSize() >= size){
@@ -183,15 +178,14 @@ public class BlockList /*implements BlockContainer*/ {
         Block finger = head;
         while(finger != null) {
             total = total + finger.getSize();
-           
             finger = finger.getRight();
         }
         return total;
-    };
+    }
 
 
-
-    //Return the size of the single greatest block in the container
+    //Return the offset and size of the single greatest block in the container in int array format:
+    // {offset, size}
     public int[] getMaxBlock() {
         Block finger = head;
         int[] maxBlock = new int[2];
@@ -206,7 +200,10 @@ public class BlockList /*implements BlockContainer*/ {
     }
 
     public int getBlockCount() {
-        return this.blockCount;
+        return blockCount;
+    }
+    public int getMemSize() {
+        return memSize;
     }
 
 
@@ -215,7 +212,6 @@ public class BlockList /*implements BlockContainer*/ {
     //Blocks are adjacent if the left edge of one block touches the right edge of another block
     //since we are working with integers, touching means a difference of 1 between them
     public boolean calculateAdjacency(Block a, Block b) {
-
         if(b.getOffset() - a.getRightBoundary() == 1){//if the left edge of b is 1 greater than the right edge of a
             return true;
         }
@@ -225,14 +221,14 @@ public class BlockList /*implements BlockContainer*/ {
         else{
             return false;
         }
-    };
+    }
 
 
 
     //Return true if there are no nodes, false if there is at least one node
     //Completed by Marty
     public boolean isEmpty(){
-        if(this.head == null){
+        if(head == null){
             return true;
         }
         else{
@@ -257,7 +253,7 @@ public class BlockList /*implements BlockContainer*/ {
     }
 
 
-   private class BlockListIterator/* implements BlockIterator*/ {
+   private class BlockListIterator {
         Block current;
         boolean looping = false;
 

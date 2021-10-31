@@ -1,5 +1,6 @@
-public class FreeList extends BlockList {
+package BlockList;
 
+public class FreeList extends BlockList {
 
     public FreeList(int initialSize) {
         head = new Block(1, initialSize - 1);
@@ -8,7 +9,7 @@ public class FreeList extends BlockList {
         memSize = initialSize;
     }
 
-    public boolean merge(Block a, Block b) {
+    private boolean merge(Block a, Block b) {
         Block l;
         Block r;
         if(a.getOffset() < b.getOffset()) { 
@@ -35,11 +36,10 @@ public class FreeList extends BlockList {
             return false;
         }
         return true;
-
     }
 
 
-    public boolean shrinkBy(Block b, int shrinkByVal) { 
+    private boolean shrinkBy(Block b, int shrinkByVal) {
 
         try { 
             Block a = searchByOffset(b.getOffset());
@@ -60,8 +60,6 @@ public class FreeList extends BlockList {
         }
 
         Block b = new Block(offset, size);
-
-
         //If the list is empty, insert the block as both head and tail
         if(head == null){
 
@@ -117,7 +115,7 @@ public class FreeList extends BlockList {
                 current.setRight(b);
                 b.setLeft(current);
 
-                this.tail = b;
+                tail = b;
                 blockCount++;
                 if(calculateAdjacency(b, b.getLeft())) {
                     merge(b, b.getLeft());
@@ -131,7 +129,6 @@ public class FreeList extends BlockList {
         }
 
     }
-
 
 
     private boolean delete(Block b) {
