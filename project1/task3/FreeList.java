@@ -133,8 +133,8 @@ public class FreeList extends BlockList {
     }
 
 
-    @Override
-    protected boolean delete(Block b) {
+
+    private boolean delete(Block b) {
         if(b == null) {
             return false;
         }

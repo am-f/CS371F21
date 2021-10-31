@@ -3,8 +3,8 @@ public class BlockList /*implements BlockContainer*/ {
 //Begin Fields
 
 //If this is the parent list class, these fields should be public or free/used list must have their own instance variables
-    public Block head;
-    public Block tail;
+    protected Block head;
+    protected Block tail;
     public int blockCount;
     public int memSize;
     public BlockListIterator iterator;
@@ -113,7 +113,7 @@ public class BlockList /*implements BlockContainer*/ {
         return delete(searchByOffset(offset));
     }
 
-    protected boolean delete(Block b) {
+    private boolean delete(Block b) { //public because UsedList needs to access it
         if(b == null) {
             System.err.println("block does not exist");
             return false;
