@@ -147,11 +147,7 @@ public class BlockList /*implements BlockContainer*/ {
         return delete(searchByOffset(offset));
     }
 
-<<<<<<< HEAD
-    private boolean delete(Block b) {
-=======
     private boolean delete(Block b) { //public because UsedList needs to access it
->>>>>>> e64447ca9331aeaddc7040e5cef99bda4ea68610
         if(b == null) {
             System.err.println("block does not exist");
             return false;
