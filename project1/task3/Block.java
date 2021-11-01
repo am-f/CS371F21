@@ -1,5 +1,3 @@
-package BlockList;
-
 public class Block {
    
     private int offset;
@@ -7,29 +5,29 @@ public class Block {
     private Block left;
     private Block right;
 
-    public Block(int offset, int size) {
+    protected Block(int offset, int size) {
         this.offset = offset;
         this.size = size;
         left = null;
         right = null;
     }
-   
-    public Block(int offset, int size, Block left, Block right) {
+
+    protected Block(int offset, int size, Block left, Block right) {
         this.offset = offset;
         this.size = size;
         this.left = left;
         this.right = right;
     }
-    public int getSize() {
+    protected int getSize() {
         return size;
     }
-    public void setSize(int size) {
+    protected void setSize(int size) {
         this.size = size;
     }
-    public int getOffset() {
+    protected int getOffset() {
         return offset;
     }
-    public void setOffset(int offset) {
+    protected void setOffset(int offset) {
         this.offset = offset;
     }
 
@@ -37,16 +35,16 @@ public class Block {
     //The left boundary (first occupied memory slot) of a block is always its offset
     //The right boundary of a block (the final memory slot it occupies) will be (size - 1) blocks after the offset
    
-    public int getRightBoundary(){
+    protected int getRightBoundary(){
         return this.offset + this.size - 1;
     }
 
-    public Block getLeft() {
+    protected Block getLeft() {
         return left;
     }
     protected void setLeft(Block left) { this.left = left; }
     
-    public Block getRight() {
+    protected Block getRight() {
         return right;
     }
     protected void setRight(Block right) {
