@@ -1,30 +1,28 @@
-package BlockList;
-
-public class BlockList /*implements BlockContainer*/ {
+import java.util.Iterator;
+public class BlockList {
 
 //Begin Fields
 
-//If this is the parent list class, these fields should be public or free/used list must have their own instance variables
+
     protected Block head;
     protected Block tail;
     protected int blockCount;
     protected int memSize;
-    public BlockListIterator iterator;
 
 //End Fields
 
 
 //Begin Constructors
 
-    public BlockList() {
+    protected BlockList() {
         head = null;
         tail = null;
         blockCount = 0;
         memSize = 0;
     }
 
-    public BlockList(int sizeOfMemory) { //I don't think we want this constructor here, since
-        // initializing with sizeOfMemory applies to BlockList.FreeList only
+    protected BlockList(int sizeOfMemory) { //I don't think we want this constructor here, since
+        // initializing with sizeOfMemory applies to FreeList only
         head = null;
         tail = null;
         blockCount = 0;
@@ -37,12 +35,21 @@ public class BlockList /*implements BlockContainer*/ {
     
 
     //Insert the block in the correct order
-    public boolean insert(int offset, int size) {
+    protected int insert(int offset, int size) {
+        Block b = insertBlock(offset, size);
+        if(b == null) {
+            return 0;
+        }
+        else {
+            return offset;
+        }
+    }
+    protected Block insertBlock(int offset, int size) {
 
         Block b = new Block(offset, size);
         if(size >= memSize || size <= 0) {
             System.err.println("invalid size");
-            return false;
+            return null;
         }
 
         //If the list is empty, insert the block as both head and tail
@@ -55,7 +62,7 @@ public class BlockList /*implements BlockContainer*/ {
             head.setRight(null);
 
             blockCount++;
-            return true;
+            return b;
         }
         else {
             Block current;
@@ -68,14 +75,14 @@ public class BlockList /*implements BlockContainer*/ {
 
                 head = b;
                 blockCount++;
-                return true;
+                return b;
             }
 
             //Handle the case where the new block is inserted between two existing blocks
             while (current.getRight() != null){
                 if(current.getOffset() == offset) {
                     System.err.println("invalid insert");
-                    return false;
+                    return null;
                 }
                 if (current.getRightBoundary() < b.getOffset() && b.getRightBoundary() < current.getRight().getOffset()){
                     b.setLeft(current);
@@ -84,7 +91,7 @@ public class BlockList /*implements BlockContainer*/ {
                     current.setRight(b);
 
                     blockCount++;
-                    return true;
+                    return b;
                 }
                 current = current.getRight();
             }
@@ -96,25 +103,32 @@ public class BlockList /*implements BlockContainer*/ {
                 
                 tail = b;
                 blockCount++;
-                return true;
+                return b;
             }
             //If no previous case inserted the block
             System.err.println("failed insert");
-            return false;
+            return null;
             
         }
         
     }
 
     //Deletes the block at the given offset
-    public boolean delete(int offset) {
-        return delete(searchByOffset(offset));
+    protected boolean delete(int offset) {
+        Block b = deleteBlock(searchByOffset(offset));
+        if(b == null) {
+            return false;
+        }
+        else {
+            return true;
+        }
+
     }
 
-    private boolean delete(Block b) {
+    protected Block deleteBlock(Block b) {
         if(b == null) {
             System.err.println("block does not exist");
-            return false;
+            return null;
         }
         if(b.getLeft() != null) {
             b.getLeft().setRight(b.getRight());//Make the block on the left point to the block
@@ -132,12 +146,10 @@ public class BlockList /*implements BlockContainer*/ {
         }
         blockCount--;
       
-        b.setLeft(null);
-        b.setRight(null);
-        return true;
+        //b.setLeft(null);
+        //b.setRight(null);
+        return b;
     }
-
-
 
     //Return block at given offset
     protected Block searchByOffset(int offset) {
@@ -174,7 +186,7 @@ public class BlockList /*implements BlockContainer*/ {
 
 
     //Return the total size of all blocks represented by the container
-    public int getTotalSize() {
+    protected int getTotalSize() {
         int total = 0;
         Block finger = head;
         while(finger != null) {
@@ -187,7 +199,7 @@ public class BlockList /*implements BlockContainer*/ {
 
     //Return the offset and size of the single greatest block in the container in int array format:
     // {offset, size}
-    public int[] getMaxBlock() {
+    protected int[] getMaxBlock() {
         Block finger = head;
         int[] maxBlock = new int[2];
         while(finger != null) {
@@ -201,10 +213,10 @@ public class BlockList /*implements BlockContainer*/ {
     }
 
 
-    public int getBlockCount() {
+    protected int getBlockCount() {
         return blockCount;
     }
-    public int getMemSize() {
+    protected int getMemSize() {
         return memSize;
     }
 
@@ -212,7 +224,10 @@ public class BlockList /*implements BlockContainer*/ {
     //Completed by Marty
     //Blocks are adjacent if the left edge of one block touches the right edge of another block
     //since we are working with integers, touching means a difference of 1 between them
-    public boolean calculateAdjacency(Block a, Block b) {
+    protected boolean calculateAdjacency(Block a, Block b) {
+        if(a == null || b == null) {
+            return false;
+        }
         if(b.getOffset() - a.getRightBoundary() == 1){//if the left edge of b is 1 greater than the right edge of a
             return true;
         }
@@ -228,7 +243,7 @@ public class BlockList /*implements BlockContainer*/ {
 
     //Return true if there are no nodes, false if there is at least one node
     //Completed by Marty
-    public boolean isEmpty(){
+    protected boolean isEmpty(){
         if(head == null){
             return true;
         }
@@ -237,41 +252,29 @@ public class BlockList /*implements BlockContainer*/ {
         }
     }
 
-    public BlockListIterator iterator() {
+    protected BlockListIterator iterator() {
         return new BlockListIterator(this);
     }
-    public BlockListIterator iterator(boolean looping) {
+    protected BlockListIterator iterator(boolean looping) {
         return new BlockListIterator(this, true);
     }
-    public Block getNext(BlockListIterator iter) {
-        return iter.next();
-    }
-    public boolean getHasNext(BlockListIterator iter) {
-        return iter.hasNext();
-    }
-    public void doRestart(BlockListIterator iter) {
-        iter.restart();
-    }
 
 
-   private class BlockListIterator {
+   private class BlockListIterator implements Iterator<Block> {
         Block current;
         boolean looping = false;
 
         //initializes pointer to head of Blocklist for iteration
-        BlockListIterator(BlockList list){
+        public BlockListIterator(BlockList list){
             current = list.head;
         }
-        BlockListIterator(BlockList list, boolean looping) {
+        public BlockListIterator(BlockList list, boolean looping) {
             current = list.head;
             this.looping = looping;
         }
-        void restart() {
-            current = head;
-        }
 
         //returns false if next element doesn't exist
-        boolean hasNext() {
+        public boolean hasNext() {
             if(looping) {
                 if(blockCount != 0) {
                     return true;
@@ -282,7 +285,7 @@ public class BlockList /*implements BlockContainer*/ {
         }
 
         //Returns current block and updates pointer
-        Block next() {
+        public Block next() {
 
             if(looping) {
                 if(current == null && blockCount != 0) {

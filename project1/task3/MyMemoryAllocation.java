@@ -1,11 +1,25 @@
-import BlockList.*;
-
+import java.util.Iterator;
 public class MyMemoryAllocation extends MemoryAllocation {
 
-   String operatingMode;
-   UsedList usedList;
-   FreeList freeList;
-   int maxMemSize;
+    //Access Modifier Justification:
+    // We are using protected so that the list and allocator classes can access the blocks, but,
+    // assuming that whoever/whatever is instantiating the allocator and using the allocator
+    // methods is not within this default package, then the user's only access to the memory
+    // model (lists and blocks) will be mediated by MyMemoryAllocation.  As long as
+    // MyMemoryAllocationTest is not within this default package, then it cannot access blocks or
+    // lists directly.
+    //Overall, we want the test/user to have access only to the methods specified in
+    // MemoryAllocation abstract class. We do not want the test/user to have access to any other
+    // methods or fields. This is why the methods specified in MemoryAllocation are public, and
+    // nearly everything else (methods and variables) are protected.
+
+   protected String operatingMode;
+   protected UsedList usedList;
+   protected FreeList freeList;
+   protected int maxMemSize;
+   protected Iterator<Block> usedListIterator;
+   protected Iterator<Block> freeListIterator;
+
 
     
     public MyMemoryAllocation(int mem_size, String algorithm) {
@@ -17,7 +31,7 @@ public class MyMemoryAllocation extends MemoryAllocation {
 
         maxMemSize = mem_size;
         if(algorithm.equals("NF")) {
-            freeList.iterator = freeList.iterator(true);
+            freeListIterator = freeList.iterator(true);
            
         }
         
@@ -30,15 +44,15 @@ public class MyMemoryAllocation extends MemoryAllocation {
         }
         
         if(this.operatingMode.equals("BF")) {
-            freeList.iterator = freeList.iterator();
+            freeListIterator = freeList.iterator();
             Block current;
             int[] maxBlock = freeList.getMaxBlock();
             if(maxBlock[1] < size) {
                 System.err.println("large enough block not available");
                 return 0;
             }
-            while(freeList.getHasNext(freeList.iterator)) {
-                current = freeList.getNext(freeList.iterator);
+            while(freeListIterator.hasNext()) {
+                current = freeListIterator.next();
                 int curSize = current.getSize();
                 int curOffset = current.getOffset();
 
@@ -67,11 +81,11 @@ public class MyMemoryAllocation extends MemoryAllocation {
         }
         if(this.operatingMode.equals("FF")){
 
-            freeList.iterator = freeList.iterator();
+            freeListIterator = freeList.iterator();
             Block current;
 
-            while(freeList.getHasNext(freeList.iterator)){
-                current = freeList.getNext(freeList.iterator);
+            while(freeListIterator.hasNext()){
+                current = freeListIterator.next();
                
                 if(current.getSize() >= size){
                     int blockOffset = current.getOffset();
@@ -92,7 +106,7 @@ public class MyMemoryAllocation extends MemoryAllocation {
             boolean done = false;
 
             if(blockCount == 1) {
-                nfCurrent = freeList.getNext(freeList.iterator);
+                nfCurrent = freeListIterator.next();
                
                 int blockOffset = nfCurrent.getOffset();
                 usedList.insert(nfCurrent.getOffset(), size);
@@ -100,9 +114,9 @@ public class MyMemoryAllocation extends MemoryAllocation {
                
                 return blockOffset;//return address of allocated block
             }
-            if(freeList.getHasNext(freeList.iterator)) {
+            if(freeListIterator.hasNext()) {
                 do {
-                    nfCurrent = freeList.getNext(freeList.iterator);
+                    nfCurrent = freeListIterator.next();
                     numBlocksChecked++;
                     if (nfCurrent.getSize() >= size) {
                         int blockOffset = nfCurrent.getOffset();
@@ -129,16 +143,15 @@ public class MyMemoryAllocation extends MemoryAllocation {
             System.err.println("invalid offset");
             return;
         }
-        usedList.iterator = usedList.iterator();
+        usedListIterator= usedList.iterator();
         Block usedCurrent;
         
-        while(usedList.getHasNext(usedList.iterator)){
-           usedCurrent = usedList.getNext(usedList.iterator);
+        while(usedListIterator.hasNext()){
+           usedCurrent = usedListIterator.next();
           
            if(usedCurrent.getOffset() == offset){
                freeList.insert(offset, usedCurrent.getSize());
                usedList.delete(offset);
-               usedList.doRestart(usedList.iterator);
               
                return;
 
