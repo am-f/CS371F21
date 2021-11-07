@@ -30,6 +30,8 @@ out/
 modules.xml
 .idea/misc.xml
 *.ipr
+/shelf/
+/workspace.xml
 
 #VSCode configuration files
 .vscode/

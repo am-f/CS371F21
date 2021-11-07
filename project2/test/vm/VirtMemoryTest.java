@@ -31,6 +31,8 @@ public class VirtMemoryTest {
         byte x = m.read(0xFFFFFF);
         MatcherAssert.assertThat(0, not(errContent.toString().length()));
         //Code review q1: what is the max legit address for m.write()??
+        //Answer: Since default virtual address space is 64KB, max legit address is 64KB-1byte,
+        // which is 0xFFFF
         m.shutdown();
     }
     @After
@@ -64,8 +66,15 @@ public class VirtMemoryTest {
         int readCount = m.getPhyMemory().readCountDisk();
         assertEquals(1, writeCount);
         //Code review q2: why is there only 1 disk write?
+        //Answer: because we only write to disk if a page has to be evicted or there have been
+        // more than 32 writes since the last write-back. In this case, we have exactly 32
+        // writes, which isn't enough to trigger a batched-write-back, so the only write occurs
+        // during the shutdown() function, when it calls sync_to_disk().
         assertEquals(1, readCount);
         //Code review q3: why is there only 1 disk read?
+        //Answer: there is only 1 disk read because the block is only loaded into memory once, in
+        // the first write. The rest of the writes are to the same block, which is already in
+        // memory, so no more disk reads are necessary.
     }
     @Test
     public void test4_WriteBackToMultiBlocks() {
@@ -81,8 +90,12 @@ public class VirtMemoryTest {
         int readCount = m.getPhyMemory().readCountDisk();
         assertEquals(32, writeCount);
         //Code review q4: why are there 32 disk writes?
+        //Answer: there are 32 disk writes because 32 blocks have been changed, so during
+        // shutdown, those 32 blocks need to be written back to the disk.
         assertEquals(32, readCount);
         //Code review q5: why are there 32 disk read?
+        //Answer: there are 32 disk reads because each of the write calls writes to a different
+        // block, and so 32 blocks total must be read into memory from the disk.
     }
     //the following are more realistic workloads
     static final int TEST_SIZE = 64*1024;// 64K, test on max address space!
@@ -106,8 +119,17 @@ public class VirtMemoryTest {
         m.shutdown();
         assertEquals(2048, m.getPhyMemory().writeCountDisk());
         //Code review q6: why are there 2048 disk writes?
+        //Answer: each block has 64 bytes. We automatically write-back after every 32 writes.
+        // That means for each block we write-back 2 times. There are 1024 blocks, so 2048 total
+        // disk writes in the first for-loop. The second for-loop doesn't cause any disk writes
+        // since it only reads data, it doesn't change anything, so nothing needs to be
+        // written-back.
+
         assertEquals(2048, m.getPhyMemory().readCountDisk());
         //Code review q7: why are there 2048 disk reads?
+        //Answer: there are 2048 disk reads because each block is read once in the first for-loop
+        // and once in the second for-loop. There are 1024 blocks so 2048 total disk reads.
+
 
     }
     @Test
@@ -124,8 +146,18 @@ public class VirtMemoryTest {
         m.shutdown();
         assertEquals(2048, m.getPhyMemory().writeCountDisk());
         //Code review q8: why are there 2048 disk writes?
+        //Answer: each block has 64 bytes. We automatically write-back after every 32 writes.
+        // That means for each block we write-back 2 times. There are 1024 blocks, so 2048 total
+        // disk writes in the first for-loop. The second for-loop doesn't cause any disk writes
+        // since it only reads data, it doesn't change anything, so nothing needs to be
+        // written-back.
         assertEquals(1792, m.getPhyMemory().readCountDisk());
-        //Code review q9: why are there 1792 disk writes? Why is it different from test5?
+        //Code review q9: why are there 1792 disk reads? Why is it different from test5?
+        //Answer: there are 1792 disk reads because, when the second for-loop begins, the first 256
+        // blocks it wants to read (which are at the very end of the virtual memory) are already in
+        // memory, since they were loaded in at the end of the first for-loop. After it reads
+        // those 256 blocks that are already in memory, then it must load the other 1792 blocks
+        // from the disk to read them, resulting in 1792 disk reads.
 
     }
     @Test
