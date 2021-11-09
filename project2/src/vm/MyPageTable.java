@@ -34,12 +34,14 @@ public class MyPageTable {
         addPTE(newPTE);
     }
     */
-    protected void addPTE(PageTableEntry pte) {
+    protected PageTableEntry addNewPTE(int vpn, int pfn) {
+        PageTableEntry pte = new PageTableEntry(vpn, pfn);
         int index = hashCode(pte.vpn);
         PageTableEntry finger = buckets[index];
         pte.next = finger;
         buckets[index] = pte;
         numPTEs++;
+        return pte;
     }
 
     protected void removePTE(PageTableEntry pte) {
@@ -57,7 +59,22 @@ public class MyPageTable {
         del.next = null;
         numPTEs--;
     }
+/*
+    protected Object[] parsedPTE(Object pte) {
+        Object[] parsed = new Object[3];
+        parsed[0] = ((PageTableEntry)pte).vpn;
+        parsed[1] = ((PageTableEntry)pte).pfn;
+        parsed[2] = ((PageTableEntry)pte).dirty;
+        return parsed;
+    }
 
+ */
+    /*
+    protected PageTableEntry newPTE(int vpn, int pfn) {
+        return new PageTableEntry(vpn, pfn);
+    }
+
+     */
 
 
     private static class PageTableEntry {
@@ -71,6 +88,7 @@ public class MyPageTable {
             this.pfn = pfn;
             dirty = false;
         }
+
     }
 
 

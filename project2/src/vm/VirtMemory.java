@@ -38,12 +38,24 @@ public class VirtMemory extends Memory {
 
  */
 
+    protected int[] parseVA(int va) { //{vpn, offset}
+        int[] arr = new int[2];
+        arr[0] = va / PAGE_SIZE;
+        arr[1] = va % PAGE_SIZE;
+        return arr;
+    }
+    protected int[] parsePA(int pa) {
+        int[] arr = new int[2];
+        arr[0] = pa / PAGE_SIZE;
+        arr[1] = pa % PAGE_SIZE;
+        return arr;
+    }
+
     protected int vaToPaAddressTranslation(int va) { //address translation
         int vpn = va / PAGE_SIZE;
         int offset = va % PAGE_SIZE;
         int pfn = vpnPT.getPFN(vpn);
         int pa = pfn+offset;
-
         return pa;
     }
     protected int paToVaAddressTranslation(int pa) {
@@ -93,10 +105,22 @@ public class VirtMemory extends Memory {
         //remove from page table
         //remove from usedFrames
     }
-    protected void handlePageFault(int va) {
+    protected int handlePageFault(int va) { //returns pfn
+        /*
+        int[] parsedVA = parseVA(va);
         if(frameTracking.numFramesAvailable > 0) {
-
+            Object pte = vpnPT.addPTE(vpnPT.newPTE(parsedVA[0], (int)frameTracking.availFrame()));
+            frameTracking.useFrame(pte);
+            int availFrame = (int)frameTracking.availFrame();
+            Object[] parsedPTE = vpnPT.parsedPTE(pte);
+            ram.load((int)parsedVA[0],(int)parsedVA[1] * PAGE_SIZE);
+            return (int)(parsedPTE[1]);
         }
+        else {
+            return -1;
+        }
+        */
+         return -1;
         //evict first frame in usedFrames
         //load page containing va into ram
         //add to page table
