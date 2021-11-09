@@ -1,25 +1,34 @@
 package vm;
+import storage.PhyMemory;
 
 public class VirtMemory extends Memory {
 
     protected int writeCount; //if writecount > 32, sync_to_disk
-    protected MyPageTable pt;
+    protected MyPageTable vpnPT;
+    protected MyPageTable pfnPT;
+    //protected int pfnVpnMapping[];
     protected int PAGE_SIZE = 64;
     protected Policy frameTracking;
-
+    protected int virtMemSize; //TODO: invalid address exception if va>=virtMemSize
+    protected int physMemSize;
 
     //default constructor, should create instance of VirtMemory w/ 64KB virtual memory and 16kb
     // physical memory
     public VirtMemory() {
-
-        super(null);
+        this(64 * 1024, 16 * 1024);
     }
     //other constructor, should create instance of VirtMemory with specified size and instance of
     // PhysMem with specified size
     public VirtMemory(int virtSize, int phySize) {
+        super(new PhyMemory(phySize));
+        physMemSize = phySize;
+        virtMemSize = virtSize;
+        writeCount = 0;
+        vpnPT = new MyPageTable(physMemSize);
+        pfnPT = new MyPageTable(physMemSize);
+        frameTracking = new Policy(virtMemSize);
 
 
-        super(null);
     }
 
 /*
@@ -32,7 +41,7 @@ public class VirtMemory extends Memory {
     protected int vaToPaAddressTranslation(int va) { //address translation
         int vpn = va / PAGE_SIZE;
         int offset = va % PAGE_SIZE;
-        int pfn = pt.getPFN(vpn);
+        int pfn = vpnPT.getPFN(vpn);
         int pa = pfn+offset;
 
         return pa;
@@ -85,6 +94,9 @@ public class VirtMemory extends Memory {
         //remove from usedFrames
     }
     protected void handlePageFault(int va) {
+        if(frameTracking.numFramesAvailable > 0) {
+
+        }
         //evict first frame in usedFrames
         //load page containing va into ram
         //add to page table

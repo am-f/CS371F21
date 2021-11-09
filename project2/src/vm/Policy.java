@@ -3,26 +3,44 @@ import java.util.LinkedList;
 
 public class Policy {
 
-    protected LinkedList<Integer> usedFramesByVPN = new LinkedList();
-    protected LinkedList<Integer> availableFramesByPFN = new LinkedList();
+    protected int numFrames;
+    protected int numFramesAvailable;
+    protected int numFramesUsed;
+    protected LinkedList<Object> usedFrames = new LinkedList();
+    protected LinkedList<Integer> availablePFNs = new LinkedList();
     protected Policy(int phySize) {
-        int pfNum = phySize / 64;
-    }
-   protected int pfnOfAvailPage() {
-        return availableFramesByPFN.peek();
-    }
-    protected int vpnOfPageToEvict() {
-        return usedFramesByVPN.peek();
-    }
-    /*
-    protected void addToEnd(int vpn) {
+        numFrames = phySize / 64;
+        numFramesAvailable = numFrames;
+        numFramesUsed = 0;
+        for(int i = 0; i < numFrames; i++) {
+            availablePFNs.add(i);
+        }
 
     }
-    protected void removeFromFront(int vpn) {
+   protected Object availPage() {
+        return availablePFNs.peek();
+    }
+    protected Object pageToEvict() {
+        return usedFrames.peek();
+    }
+
+    protected void useFrame(Object pte) {
+        usedFrames.add(pte);
+        numFramesUsed++;
+        availablePFNs.removeFirst();
+        numFramesAvailable--;
+
+    }
+    protected void evictFrame(Object pte, int pfn) {
+        usedFrames.removeFirst();
+        numFramesUsed--;
+        availablePFNs.add(pfn);
+        numFramesAvailable++;
+
 
     }
 
-     */
+
 
 
 
