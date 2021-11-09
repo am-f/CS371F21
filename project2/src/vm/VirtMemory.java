@@ -2,7 +2,7 @@ package vm;
 
 public class VirtMemory extends Memory {
 
-    int writeCount; //if writecount > 32, sync_to_disk
+    protected int writeCount; //if writecount > 32, sync_to_disk
     protected MyPageTable pt;
     protected int PAGE_SIZE = 64;
     protected Policy frameTracking;
