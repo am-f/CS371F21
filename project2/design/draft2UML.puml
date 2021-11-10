@@ -20,6 +20,7 @@ class vm.Policy {
 # int availPFN()
 # int pfnToEvict()
 # void useFrame(int)
+# void freeFrame(int)
 }
 class vm.VirtMemory {
 # int writeCount
