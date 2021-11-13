@@ -6,9 +6,8 @@ public class Policy {
     protected int numFrames;
     protected int numFramesAvailable;
     protected int numFramesUsed;
-    //protected LinkedList<Object> usedFrames = new LinkedList();
-    protected LinkedList<Integer> usedPFNs = new LinkedList();
-    protected LinkedList<Integer> availablePFNs = new LinkedList();
+    protected LinkedList<Integer> usedPFNs = new LinkedList<Integer>();
+    protected LinkedList<Integer> availablePFNs = new LinkedList<Integer>();
     protected Policy(int phySize) {
         numFrames = phySize / 64;
         numFramesAvailable = numFrames;
@@ -22,16 +21,13 @@ public class Policy {
     protected int usedPfnToEvict() {
         return usedPFNs.peek();
     }
-    //protected Object availFrame() {return availablePFNs.peek();}
-    //protected Object pageToEvict() { return usedFrames.peek(); }
-    protected int useAvailFrame() {
+   
+    protected int useAvailFrame() { //uses first frame
         int pfn = firstAvailPFN();
         useFrame(pfn);
         return pfn;
     }
-    protected void useFrame(int pfn) { //uses first frame
-    //protected void useFrame(Object pte) {
-        //usedFrames.add(pte);
+    protected void useFrame(int pfn) {
         usedPFNs.add(pfn);
         numFramesUsed++;
         availablePFNs.removeFirst();
@@ -40,24 +36,10 @@ public class Policy {
     }
 
     protected void freeFrame(int pfn) {
-    //protected void evictFrame(Object pte, int pfn) {
         usedPFNs.removeFirst();
         numFramesUsed--;
         availablePFNs.add(pfn);
         numFramesAvailable++;
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

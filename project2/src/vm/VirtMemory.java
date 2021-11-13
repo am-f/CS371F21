@@ -60,7 +60,7 @@ public class VirtMemory extends Memory {
             if(va >= virtMemSize) {
                 throw new InvalidAddressException();
             }
-            int pfn = vpnPT.getPFN(vpn);
+            int pfn = vpnPT.getPTEbyVPN(vpn).pfn;
             int pa = pfn + offset;
             return pa;
         } catch (PageFaultException e) {
@@ -85,7 +85,8 @@ public class VirtMemory extends Memory {
             if(addr >= virtMemSize || addr < 0) {
                 throw new InvalidAddressException();
             }
-            int pfn = vpnPT.getPFN(parsedVA[0]);
+            
+            int pfn = vpnPT.getPTEbyVPN(parsedVA[0]).pfn; 
             if(pfn == -1) {
                 throw new PageFaultException();
             }
@@ -129,7 +130,7 @@ public class VirtMemory extends Memory {
             if(addr >= virtMemSize || addr < 0) {
                 throw new InvalidAddressException();
             }
-            int pfn = vpnPT.getPFN(parsedVA[0]);
+            int pfn = vpnPT.getPTEbyVPN(parsedVA[0]).pfn;
             if(pfn == -1) {
                 throw new PageFaultException();
 
@@ -176,7 +177,7 @@ public class VirtMemory extends Memory {
             if(vpn > (virtMemSize / PAGE_SIZE)) {
                 throw new InvalidAddressException();
             }
-            if(vpnPT.getPFN(vpn) != -1) {
+            if(vpnPT.getPTEbyVPN(vpn).pfn != -1) {
                 System.err.print("page already in ram");
             }
         }
@@ -215,7 +216,7 @@ public class VirtMemory extends Memory {
                 int pfn = frameTracking.usedPfnToEvict();
                 MyPageTable.PageTableEntry pte = pfnPT.getPTEbyPFN(pfn);
                 if (pte.dirty) {
-                    int evictVPN = vpnPT.getVPN(pfn);
+                    int evictVPN = vpnPT.getPTEbyPFN(pfn).vpn;
                     ram.store(evictVPN, pfn * PAGE_SIZE);
                 }
                 frameTracking.freeFrame(pfn);
@@ -223,7 +224,6 @@ public class VirtMemory extends Memory {
             int pfn = frameTracking.useAvailFrame();
             ram.load(vpn, pfn * PAGE_SIZE);
             MyPageTable.PageTableEntry pte = vpnPT.addNewPTE(vpn, pfn);
-            pfnPT.addPTE(pte);
             return pfn;
             //evict first frame in usedFrames
             //load page containing va into ram
