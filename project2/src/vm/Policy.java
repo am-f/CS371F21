@@ -24,12 +24,12 @@ public class Policy {
     }
     //protected Object availFrame() {return availablePFNs.peek();}
     //protected Object pageToEvict() { return usedFrames.peek(); }
-    protected int useAvailFrame() {
+    protected int useAvailFrame() { //uses first frame
         int pfn = firstAvailPFN();
         useFrame(pfn);
         return pfn;
     }
-    protected void useFrame(int pfn) { //uses first frame
+    protected void useFrame(int pfn) {
     //protected void useFrame(Object pte) {
         //usedFrames.add(pte);
         usedPFNs.add(pfn);
@@ -53,11 +53,13 @@ public class Policy {
 
 
 
-
-
-
-
-
-
-
 }
+
+
+
+
+
+
+
+
+

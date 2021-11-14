@@ -5,12 +5,11 @@ import java.util.Iterator;
 public class VirtMemory extends Memory {
 
     protected int writeCount; //if writecount > 32, sync_to_disk
-    protected MyPageTable vpnPT;
-    protected MyPageTable pfnPT;
-    //protected int pfnVpnMapping[];
+    protected MyPageTable pt;
     protected int PAGE_SIZE = 64;
     protected Policy frameTracking;
-    protected int virtMemSize; //TODO: invalid address exception if va>=virtMemSize
+    //protected PolicyLRU frameTracking;
+    protected int virtMemSize;
     protected int physMemSize;
 
 
@@ -26,10 +25,9 @@ public class VirtMemory extends Memory {
         physMemSize = phySize;
         virtMemSize = virtSize;
         writeCount = 0;
-        vpnPT = new MyPageTable(physMemSize);
-        pfnPT = new MyPageTable(physMemSize);
-        frameTracking = new Policy(virtMemSize);
-
+        pt = new MyPageTable(physMemSize);
+        frameTracking = new Policy(physMemSize);
+        //frameTracking = new PolicyLRU(physMemSize);
 
     }
 
@@ -60,7 +58,7 @@ public class VirtMemory extends Memory {
             if(va >= virtMemSize) {
                 throw new InvalidAddressException();
             }
-            int pfn = vpnPT.getPFN(vpn);
+            int pfn = pt.getPFN(vpn);
             int pa = pfn + offset;
             return pa;
         } catch (PageFaultException e) {
@@ -85,31 +83,37 @@ public class VirtMemory extends Memory {
             if(addr >= virtMemSize || addr < 0) {
                 throw new InvalidAddressException();
             }
-            int pfn = vpnPT.getPFN(parsedVA[0]);
+            int pfn = pt.getPFN(parsedVA[0]);
             if(pfn == -1) {
                 throw new PageFaultException();
             }
             else {
                 ram.write((pfn * PAGE_SIZE) + parsedVA[1], value);
-                pfnPT.getPTEbyPFN(pfn).dirty = true;
+                pt.getPTEbyPFN(pfn).dirty = true;
+                //frameTracking.updatePage(pfn);
+                //System.out.println("\tno error ram write");
                 writeCount++;
-                return;
+                //return;
             }
 
         } catch(PageFaultException e) {
+            //int pfn = loadPage(parsedVA[0]);
             int pfn = handlePageFault(parsedVA[0]);
 
             ram.write((pfn * PAGE_SIZE) + parsedVA[1], value);
-            pfnPT.getPTEbyPFN(pfn).dirty = true;
+            pt.getPTEbyPFN(pfn).dirty = true;
+            //frameTracking.updatePage(pfn);
+            //System.out.println("\tpage fault ram write");
             writeCount++;
-            return;
+            //return;
         } catch (InvalidAddressException e) {
             System.err.println("invalid address");
-            return;
         } finally {
-            if(writeCount > 32) {
+            if(writeCount >= 32) {
                 sync_to_disk();
+                writeCount = 0;
             }
+            return;
         }
         //find hash for address
         //search bucket[hash] for correct vpn (address)
@@ -123,22 +127,25 @@ public class VirtMemory extends Memory {
     }
 
     //returns value that was stored at address addr
-    public byte read(int addr){
+    public byte read(int addr) {
         int[] parsedVA = parseVA(addr);
         try {
             if(addr >= virtMemSize || addr < 0) {
                 throw new InvalidAddressException();
             }
-            int pfn = vpnPT.getPFN(parsedVA[0]);
+            int pfn = pt.getPFN(parsedVA[0]);
             if(pfn == -1) {
                 throw new PageFaultException();
-
             }
             else {
+                //frameTracking.updatePage(pfn);
                 return ram.read((pfn * PAGE_SIZE) + parsedVA[1]);
+
             }
         } catch(PageFaultException e) {
             int pfn = handlePageFault(parsedVA[0]);
+            //int pfn = loadPage(parsedVA[0]);
+            //frameTracking.updatePage(pfn);
             return ram.read((pfn * PAGE_SIZE) + parsedVA[1]);
         } catch (InvalidAddressException e) {
             System.err.println("invalid address");
@@ -154,13 +161,14 @@ public class VirtMemory extends Memory {
     }
     //flush back dirty pages to disk
     protected void sync_to_disk(){
-        Iterator<MyPageTable.PageTableEntry> ptIter = pfnPT.iterator();
-        int index = 0;
+        Iterator<MyPageTable.PageTableEntry> ptIter = pt.iterator();
         MyPageTable.PageTableEntry current;
         while(ptIter.hasNext()) {
             current = ptIter.next();
             if(current.dirty) {
                 ram.store(current.vpn, current.pfn * PAGE_SIZE);
+                //System.out.println("\t\tsync store");
+                current.dirty = false;
             }
 
         }
@@ -171,23 +179,28 @@ public class VirtMemory extends Memory {
         // startAddress)
     }
 
-    protected void loadPage(int vpn) throws PageFaultException, NoPFNException {
+    protected int loadPage(int vpn) {
         try {
             if(vpn > (virtMemSize / PAGE_SIZE)) {
                 throw new InvalidAddressException();
             }
-            if(vpnPT.getPFN(vpn) != -1) {
-                System.err.print("page already in ram");
+            int pfn = pt.getPFN(vpn);
+            if(pfn != -1) {
+                //System.err.print("page already in ram");
+                return pfn;
             }
+            return -1;
         }
         catch (InvalidAddressException e) {
             System.err.print("invalid address");
+            return -1;
         }
         catch (PageFaultException e) {
             int pfn = handlePageFault(vpn);
             ram.load(vpn, pfn * PAGE_SIZE);
-            vpnPT.addNewPTE(vpn, pfn);
-            pfnPT.addNewPTE(vpn, pfn);
+            pt.addNewPTE(vpn, pfn);
+            return pfn;
+            //pt.addNewPTE(vpn, pfn);
         }
         //load from disk to ram
         //add to page table
@@ -195,7 +208,8 @@ public class VirtMemory extends Memory {
 
     }
     protected void evictPageByPFN(int pfn) {
-        MyPageTable.PageTableEntry pte = pfnPT.getPTEbyPFN(pfn);
+        MyPageTable.PageTableEntry pte = pt.getPTEbyPFN(pfn);
+        evictPage(pte);
         //if()
         //if dirty==true, store to disk
         //remove from page table
@@ -205,30 +219,41 @@ public class VirtMemory extends Memory {
         int vpn = pte.vpn;
         if (pte.dirty) {
             ram.store(pte.vpn, pte.pfn * PAGE_SIZE);
+            pte.dirty = false;
         }
         frameTracking.freeFrame(pte.pfn);
+        pt.removePTE(pte);
+        //writeCount = 0; //!!!!!!!?????????
     }
     protected int handlePageFault(int vpn) { //returns pfn
         //int[] parsedVA = parseVA(va);
         try {
             if (frameTracking.numFramesAvailable == 0) {
                 int pfn = frameTracking.usedPfnToEvict();
-                MyPageTable.PageTableEntry pte = pfnPT.getPTEbyPFN(pfn);
+                evictPageByPFN(pfn);
+                /*
+                MyPageTable.PageTableEntry pte = pt.getPTEbyPFN(pfn);
                 if (pte.dirty) {
-                    int evictVPN = vpnPT.getVPN(pfn);
+                    //int evictVPN = vpnPT.getVPN(pfn);
+                    int evictVPN = pte.vpn;
                     ram.store(evictVPN, pfn * PAGE_SIZE);
+                    //System.out.println("handle dirty store");
                 }
-                frameTracking.freeFrame(pfn);
+
+                 */
+                //frameTracking.freeFrame(pfn);
+                //pt.removePTE(pte);
+                //evictPage(pte);
             }
             int pfn = frameTracking.useAvailFrame();
             ram.load(vpn, pfn * PAGE_SIZE);
-            MyPageTable.PageTableEntry pte = vpnPT.addNewPTE(vpn, pfn);
-            pfnPT.addPTE(pte);
+            MyPageTable.PageTableEntry pte = pt.addNewPTE(vpn, pfn);
             return pfn;
             //evict first frame in usedFrames
             //load page containing va into ram
             //add to page table
         } catch (Exception e) {
+            System.out.println("!!!!!!\t!!!!!\t!!!!!!!!\t!!!!!!!");
             return -1;
         }
     }

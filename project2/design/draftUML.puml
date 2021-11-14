@@ -53,5 +53,7 @@ class vm.MyPageTable.PageTableEntry {
 
 
 vm.Memory <|-- vm.VirtMemory
+vm.VirtMemory o-- vm.MyPageTable
+vm.VirtMemory o-- vm.Policy
 vm.MyPageTable +.. vm.MyPageTable.PageTableEntry
 @enduml

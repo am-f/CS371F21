@@ -4,33 +4,36 @@ import java.util.Iterator;
 public class MyPageTable {
 
     private static int INITIAL_SIZE;
-    private PageTableEntry[] buckets;
+    private PageTableEntry[] vpnBuckets;
+    private PageTableEntry[] pfnBuckets;
     private int numPTEs;
 
 
     public MyPageTable(int physMemSize) {
         INITIAL_SIZE = physMemSize / 64;
-        buckets = new PageTableEntry[INITIAL_SIZE];
+        vpnBuckets = new PageTableEntry[INITIAL_SIZE];
+        pfnBuckets = new PageTableEntry[INITIAL_SIZE];
         numPTEs = 0;
 
     }
 
 
     private int hashCode(int pn) {
-        int hash = (pn / INITIAL_SIZE);
+        //int hash = (pn / INITIAL_SIZE);
+        int hash = pn % 64;
         return hash;
     }
 
 
     protected PageTableEntry getPTEbyPFN(int pfn) {
         int index = hashCode(pfn) % INITIAL_SIZE;
-        PageTableEntry finger = buckets[index];
+        PageTableEntry finger = pfnBuckets[index];
         try {
             while (finger != null) {
                 if (finger.pfn == pfn) {
                     return finger;
                 }
-                finger = finger.next;
+                finger = finger.pfnNext;
             }
             if (finger == null) {
                 throw new NoPFNException();
@@ -60,12 +63,12 @@ public class MyPageTable {
     protected PageTableEntry getPTEbyVPN(int vpn) throws PageFaultException { //returns pfn for vpn
         try {
             int index = hashCode(vpn) % INITIAL_SIZE;
-            PageTableEntry finger = buckets[index];
+            PageTableEntry finger = vpnBuckets[index];
             while (finger != null) {
-                if (finger.pfn == vpn) {
+                if (finger.vpn == vpn) {
                     return finger;
                 }
-                finger = finger.next;
+                finger = finger.vpnNext;
             }
             if (finger == null) {
                 throw new PageFaultException();
@@ -84,38 +87,61 @@ public class MyPageTable {
     */
     protected PageTableEntry addNewPTE(int vpn, int pfn) {
         PageTableEntry pte = new PageTableEntry(vpn, pfn);
-        int index = hashCode(pte.vpn);
-        PageTableEntry finger = buckets[index];
-        pte.next = finger;
-        buckets[index] = pte;
+        int vpnKey = hashCode(pte.vpn) % INITIAL_SIZE;
+        int pfnKey = hashCode(pte.pfn) % INITIAL_SIZE;
+        PageTableEntry finger = vpnBuckets[vpnKey];
+        pte.vpnNext = finger;
+        vpnBuckets[vpnKey] = pte;
+        finger = pfnBuckets[pfnKey];
+        pte.pfnNext = finger;
+        pfnBuckets[pfnKey] = pte;
         numPTEs++;
         return pte;
     }
-
+/*
     protected PageTableEntry addPTE(PageTableEntry pte) {
         int index = hashCode(pte.pfn);
         PageTableEntry finger = buckets[index];
-        pte.next = finger;
+        pte.pfnNext = finger;
         buckets[index] = pte;
         numPTEs++;
         return pte;
     }
 
-
+*/
     protected void removePTE(PageTableEntry pte) {
-        int index = hashCode(pte.vpn);
-        PageTableEntry finger = buckets[index];
+        int vpnKey = hashCode(pte.vpn) % INITIAL_SIZE;
+        int pfnKey = hashCode(pte.pfn) % INITIAL_SIZE;
+
+        //vpn
+        PageTableEntry finger = vpnBuckets[vpnKey];
         if (finger == pte) {
-            buckets[index] = pte.next;
-            pte.next = null;
+            vpnBuckets[vpnKey] = pte.vpnNext;
+            pte.vpnNext = null;
         }
-        while (finger.next != pte) {
-            finger = finger.next;
+        else {
+            while (finger.vpnNext != pte) {
+                finger = finger.vpnNext;
+            }
+            finger.vpnNext = pte.vpnNext;
         }
-        PageTableEntry del = finger.next;
-        finger.next = del.next;
-        del.next = null;
+        pte.vpnNext = null;
+        //pfn
+        finger = pfnBuckets[pfnKey];
+        if (finger == pte) {
+            pfnBuckets[pfnKey] = pte.pfnNext;
+            pte.pfnNext = null;
+        }
+        else {
+            while (finger.pfnNext != pte) {
+                finger = finger.pfnNext;
+            }
+            finger.pfnNext = pte.pfnNext;
+        }
+        pte.pfnNext = null;
+
         numPTEs--;
+
     }
 
 /*
@@ -141,7 +167,9 @@ public class MyPageTable {
         int vpn;
         int pfn;
         boolean dirty;
-        PageTableEntry next;
+        PageTableEntry vpnNext;
+        PageTableEntry pfnNext;
+
 
         PageTableEntry(int vpn, int pfn) {
             this.vpn = vpn;
@@ -157,17 +185,14 @@ public class MyPageTable {
 
 
     PageTableEntry getFirst() {
-        for (int i = 0; i < buckets.length; i++) {
-            if (buckets[i] == null) {
+        for (int i = 0; i < vpnBuckets.length; i++) {
+            if (vpnBuckets[i] == null) {
                 continue;
             }
-            return buckets[i];
+            return vpnBuckets[i];
         }
         return null;
     }
-
-
-
 
     private class PageTableIterator implements Iterator<PageTableEntry> {
         PageTableEntry current;
@@ -179,26 +204,27 @@ public class MyPageTable {
             numSeen = 0;
             numLeft = numPTEs;
             currBucket = 0;
-            for ( ; currBucket < buckets.length; currBucket++) {
-                if (buckets[currBucket] == null) {
+            for ( ; currBucket < vpnBuckets.length; currBucket++) {
+                if (vpnBuckets[currBucket] == null) {
                     continue;
                 }
-                current = buckets[currBucket];
+                current = vpnBuckets[currBucket];
                 break;
             }
 
         }
         PageTableEntry getNext() {
-            if(current.next == null) {
-                for ( ; currBucket < buckets.length; currBucket++) {
-                    if (buckets[currBucket] == null) {
+            if(current.vpnNext == null) {
+                currBucket++;
+                for ( ; currBucket < vpnBuckets.length; currBucket++) {
+                    if (vpnBuckets[currBucket] == null) {
                         continue;
                     }
-                    PageTableEntry next = buckets[currBucket];
+                    PageTableEntry next = vpnBuckets[currBucket];
                     return next;
                 }
             }
-                return current.next;
+            return current.vpnNext;
 
         }
 
