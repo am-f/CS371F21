@@ -146,16 +146,6 @@ public class MyPageTable {
     }
 
 
-    PageTableEntry getFirst() {
-        for (int i = 0; i < vpnBuckets.length; i++) {
-            if (vpnBuckets[i] == null) {
-                continue;
-            }
-            return vpnBuckets[i];
-        }
-        return null;
-    }
-
     private class PageTableIterator implements Iterator<PageTableEntry> {
         PageTableEntry current;
         int numSeen;
