@@ -90,7 +90,7 @@ public class VirtMemory extends Memory {
             else {
                 ram.write((pfn * PAGE_SIZE) + parsedVA[1], value);
                 pt.getPTEbyPFN(pfn).dirty = true;
-                //frameTracking.updatePage(pfn);
+                frameTracking.updatePage(pfn);
                 //System.out.println("\tno error ram write");
                 writeCount++;
                 //return;
@@ -102,7 +102,7 @@ public class VirtMemory extends Memory {
 
             ram.write((pfn * PAGE_SIZE) + parsedVA[1], value);
             pt.getPTEbyPFN(pfn).dirty = true;
-            //frameTracking.updatePage(pfn);
+            frameTracking.updatePage(pfn);
             //System.out.println("\tpage fault ram write");
             writeCount++;
             //return;
@@ -138,14 +138,14 @@ public class VirtMemory extends Memory {
                 throw new PageFaultException();
             }
             else {
-                //frameTracking.updatePage(pfn);
+                frameTracking.updatePage(pfn);
                 return ram.read((pfn * PAGE_SIZE) + parsedVA[1]);
 
             }
         } catch(PageFaultException e) {
             int pfn = handlePageFault(parsedVA[0]);
             //int pfn = loadPage(parsedVA[0]);
-            //frameTracking.updatePage(pfn);
+            frameTracking.updatePage(pfn);
             return ram.read((pfn * PAGE_SIZE) + parsedVA[1]);
         } catch (InvalidAddressException e) {
             System.err.println("invalid address");

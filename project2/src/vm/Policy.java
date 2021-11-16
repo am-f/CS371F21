@@ -48,6 +48,10 @@ public class Policy {
 
     }
 
+    protected void updatePage(int pfn) {
+        return;
+    }
+
 
 
 
