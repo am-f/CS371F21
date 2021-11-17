@@ -44,21 +44,21 @@ public class MyPageTable {
         return null;
     }
 
-    protected int getPFN(int vpn) throws PageFaultException {
-        try {
-            PageTableEntry pte = getPTEbyVPN(vpn);
-            return pte.pfn;
+    // protected int getPFN(int vpn) throws PageFaultException {
+    //     try {
+    //         PageTableEntry pte = getPTEbyVPN(vpn);
+    //         return pte.pfn;
 
-        } catch (PageFaultException e) {
-            throw e;
-        }
-        //return pte.vpn;
-    }
+    //     } catch (PageFaultException e) {
+    //         throw e;
+    //     }
+       
+    // }
 
-    protected int getVPN(int pfn) throws NoPFNException {
-        PageTableEntry pte = getPTEbyPFN(pfn);
-        return pte.vpn;
-    }
+    // protected int getVPN(int pfn) throws NoPFNException {
+    //     PageTableEntry pte = getPTEbyPFN(pfn);
+    //     return pte.vpn;
+    // }
 
     protected PageTableEntry getPTEbyVPN(int vpn) throws PageFaultException { //returns pfn for vpn
         try {
@@ -79,12 +79,7 @@ public class MyPageTable {
         return null;
     }
 
-    /*
-    protected void addPTE(int vpn, int pfn) {
-        PageTableEntry newPTE = new PageTableEntry(vpn, pfn);
-        addPTE(newPTE);
-    }
-    */
+
     protected PageTableEntry addNewPTE(int vpn, int pfn) {
         PageTableEntry pte = new PageTableEntry(vpn, pfn);
         int vpnKey = hashCode(pte.vpn) % INITIAL_SIZE;
@@ -98,21 +93,11 @@ public class MyPageTable {
         numPTEs++;
         return pte;
     }
-/*
-    protected PageTableEntry addPTE(PageTableEntry pte) {
-        int index = hashCode(pte.pfn);
-        PageTableEntry finger = buckets[index];
-        pte.pfnNext = finger;
-        buckets[index] = pte;
-        numPTEs++;
-        return pte;
-    }
 
-*/
+
     protected void removePTE(PageTableEntry pte) {
         int vpnKey = hashCode(pte.vpn) % INITIAL_SIZE;
         int pfnKey = hashCode(pte.pfn) % INITIAL_SIZE;
-
         //vpn
         PageTableEntry finger = vpnBuckets[vpnKey];
         if (finger == pte) {
@@ -139,28 +124,9 @@ public class MyPageTable {
             finger.pfnNext = pte.pfnNext;
         }
         pte.pfnNext = null;
-
         numPTEs--;
 
     }
-
-/*
-    protected Object[] parsedPTE(Object pte) {
-        Object[] parsed = new Object[3];
-        parsed[0] = ((PageTableEntry)pte).vpn;
-        parsed[1] = ((PageTableEntry)pte).pfn;
-        parsed[2] = ((PageTableEntry)pte).dirty;
-        return parsed;
-    }
-
- */
-    /*
-    protected PageTableEntry newPTE(int vpn, int pfn) {
-        return new PageTableEntry(vpn, pfn);
-    }
-
-     */
-
 
     protected static class PageTableEntry { //Protected so VirtMemory can reference PTEs
         // directly so VirtMemory.sync_to_disk() can store only dirty PTEs
@@ -184,15 +150,6 @@ public class MyPageTable {
     }
 
 
-    PageTableEntry getFirst() {
-        for (int i = 0; i < vpnBuckets.length; i++) {
-            if (vpnBuckets[i] == null) {
-                continue;
-            }
-            return vpnBuckets[i];
-        }
-        return null;
-    }
 
     private class PageTableIterator implements Iterator<PageTableEntry> {
         PageTableEntry current;

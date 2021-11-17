@@ -31,48 +31,14 @@ public class VirtMemory extends Memory {
 
     }
 
-/*
-    protected int virtBlock(int va) {
-        return va / PAGE_SIZE;
-    }
 
- */
+
 
     protected int[] parseVA(int va) { //{vpn, offset}
         int[] arr = new int[2];
         arr[0] = va / PAGE_SIZE;
         arr[1] = va % PAGE_SIZE;
         return arr;
-    }
-    protected int[] parsePA(int pa) {
-        int[] arr = new int[2];
-        arr[0] = pa / PAGE_SIZE;
-        arr[1] = pa % PAGE_SIZE;
-        return arr;
-    }
-
-    protected int vaToPaAddressTranslation(int va) throws PageFaultException, NoPFNException { //address translation
-        int vpn = va / PAGE_SIZE;
-        int offset = va % PAGE_SIZE;
-        try {
-            if(va >= virtMemSize) {
-                throw new InvalidAddressException();
-            }
-            int pfn = pt.getPFN(vpn);
-            int pa = pfn + offset;
-            return pa;
-        } catch (PageFaultException e) {
-            handlePageFault(vpn);
-            return vaToPaAddressTranslation(va);
-        } catch (InvalidAddressException e) {
-            System.err.print("invalid address");
-            return -1;
-        }
-
-    }
-    protected int paToVaAddressTranslation(int pa) {
-
-        return -1;
     }
 
 
@@ -83,15 +49,16 @@ public class VirtMemory extends Memory {
             if(addr >= virtMemSize || addr < 0) {
                 throw new InvalidAddressException();
             }
-            int pfn = pt.getPFN(parsedVA[0]);
+            MyPageTable.PageTableEntry pte = pt.getPTEbyVPN(parsedVA[0]);
+            int pfn = pte.pfn;
+
             if(pfn == -1) {
                 throw new PageFaultException();
             }
             else {
                 ram.write((pfn * PAGE_SIZE) + parsedVA[1], value);
-                pt.getPTEbyPFN(pfn).dirty = true;
+                pte.dirty = true;
                 frameTracking.updatePage(pfn);
-                //System.out.println("\tno error ram write");
                 writeCount++;
                 //return;
             }
@@ -99,11 +66,9 @@ public class VirtMemory extends Memory {
         } catch(PageFaultException e) {
             //int pfn = loadPage(parsedVA[0]);
             int pfn = handlePageFault(parsedVA[0]);
-
             ram.write((pfn * PAGE_SIZE) + parsedVA[1], value);
-            pt.getPTEbyPFN(pfn).dirty = true;
+            pt.getPTEbyPFN(pfn).dirty = true; //old
             frameTracking.updatePage(pfn);
-            //System.out.println("\tpage fault ram write");
             writeCount++;
             //return;
         } catch (InvalidAddressException e) {
@@ -133,7 +98,8 @@ public class VirtMemory extends Memory {
             if(addr >= virtMemSize || addr < 0) {
                 throw new InvalidAddressException();
             }
-            int pfn = pt.getPFN(parsedVA[0]);
+            MyPageTable.PageTableEntry pte = pt.getPTEbyVPN(parsedVA[0]);
+            int pfn = pte.pfn;
             if(pfn == -1) {
                 throw new PageFaultException();
             }
@@ -159,6 +125,7 @@ public class VirtMemory extends Memory {
 
         return 0;
     }
+
     //flush back dirty pages to disk
     protected void sync_to_disk(){
         Iterator<MyPageTable.PageTableEntry> ptIter = pt.iterator();
@@ -167,95 +134,38 @@ public class VirtMemory extends Memory {
             current = ptIter.next();
             if(current.dirty) {
                 ram.store(current.vpn, current.pfn * PAGE_SIZE);
-                //System.out.println("\t\tsync store");
                 current.dirty = false;
             }
 
         }
-
 
         //iterate through each PTE in buckets
         //for each PTE, if dirty==true, then get block number of page, ram.store(blockNum,
         // startAddress)
     }
 
-    protected int loadPage(int vpn) {
-        try {
-            if(vpn > (virtMemSize / PAGE_SIZE)) {
-                throw new InvalidAddressException();
-            }
-            int pfn = pt.getPFN(vpn);
-            if(pfn != -1) {
-                //System.err.print("page already in ram");
-                return pfn;
-            }
-            return -1;
-        }
-        catch (InvalidAddressException e) {
-            System.err.print("invalid address");
-            return -1;
-        }
-        catch (PageFaultException e) {
-            int pfn = handlePageFault(vpn);
-            ram.load(vpn, pfn * PAGE_SIZE);
-            pt.addNewPTE(vpn, pfn);
-            return pfn;
-            //pt.addNewPTE(vpn, pfn);
-        }
-        //load from disk to ram
-        //add to page table
-        //add to usedFrames
 
-    }
-    protected void evictPageByPFN(int pfn) {
-        MyPageTable.PageTableEntry pte = pt.getPTEbyPFN(pfn);
-        evictPage(pte);
-        //if()
-        //if dirty==true, store to disk
-        //remove from page table
-        //remove from usedFrames
-    }
     protected void evictPage(MyPageTable.PageTableEntry pte) {
-        int vpn = pte.vpn;
         if (pte.dirty) {
             ram.store(pte.vpn, pte.pfn * PAGE_SIZE);
             pte.dirty = false;
         }
         frameTracking.freeFrame(pte.pfn);
         pt.removePTE(pte);
-        //writeCount = 0; //!!!!!!!?????????
+
     }
     protected int handlePageFault(int vpn) { //returns pfn
-        //int[] parsedVA = parseVA(va);
-        try {
-            if (frameTracking.numFramesAvailable == 0) {
-                int pfn = frameTracking.usedPfnToEvict();
-                evictPageByPFN(pfn);
-                /*
-                MyPageTable.PageTableEntry pte = pt.getPTEbyPFN(pfn);
-                if (pte.dirty) {
-                    //int evictVPN = vpnPT.getVPN(pfn);
-                    int evictVPN = pte.vpn;
-                    ram.store(evictVPN, pfn * PAGE_SIZE);
-                    //System.out.println("handle dirty store");
-                }
-
-                 */
-                //frameTracking.freeFrame(pfn);
-                //pt.removePTE(pte);
-                //evictPage(pte);
-            }
-            int pfn = frameTracking.useAvailFrame();
-            ram.load(vpn, pfn * PAGE_SIZE);
-            MyPageTable.PageTableEntry pte = pt.addNewPTE(vpn, pfn);
-            return pfn;
-            //evict first frame in usedFrames
-            //load page containing va into ram
-            //add to page table
-        } catch (Exception e) {
-            System.out.println("!!!!!!\t!!!!!\t!!!!!!!!\t!!!!!!!");
-            return -1;
+        if (frameTracking.numFramesAvailable == 0) {
+            int pfn = frameTracking.usedPfnToEvict();
+            MyPageTable.PageTableEntry pte = pt.getPTEbyPFN(pfn);
+            evictPage(pte);
         }
+        int pfn = frameTracking.useAvailFrame();
+        ram.load(vpn, pfn * PAGE_SIZE);
+        pt.addNewPTE(vpn, pfn);
+        return pfn;
+        //evict first frame in usedFrames
+        //load page containing va into ram
+        //add to page table
     }
-
 }
