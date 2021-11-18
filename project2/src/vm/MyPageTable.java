@@ -146,13 +146,13 @@ public class MyPageTable {
     }
 
 
-    private class PageTableIterator implements Iterator<PageTableEntry> {
+    private class PageTableIterator implements Iterator<Integer> {
         PageTableEntry current;
         int numSeen;
         int numLeft;
         int currBucket;
         //initializes pointer to head of PageTable for iteration
-        public PageTableIterator() {
+        private PageTableIterator() {
             numSeen = 0;
             numLeft = numPTEs;
             currBucket = 0;
@@ -165,7 +165,7 @@ public class MyPageTable {
             }
 
         }
-        PageTableEntry getNext() {
+        private PageTableEntry getNext() {
             if(current.vpnNext == null) {
                 currBucket++;
                 for ( ; currBucket < vpnBuckets.length; currBucket++) {
@@ -188,6 +188,13 @@ public class MyPageTable {
             else return true;
         }
         //Returns current block and updates pointer
+        public Integer next() {
+            PageTableEntry temp = current;
+            current = getNext();
+            numSeen++;
+            return temp.pfn;
+        }
+        /*
         public PageTableEntry next() {
             PageTableEntry temp = current;
             current = getNext();
@@ -195,6 +202,7 @@ public class MyPageTable {
             return temp;
 
         }
+         */
 
 
     }

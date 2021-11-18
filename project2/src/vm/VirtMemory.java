@@ -4,12 +4,12 @@ import java.util.Iterator;
 
 public class VirtMemory extends Memory {
 
-    protected int writeCount; //if writecount > 32, sync_to_disk
-    protected MyPageTable pt;
-    protected int PAGE_SIZE = 64;
-    protected Policy frameTracking;
-    protected int virtMemSize;
-    protected int physMemSize;
+    private int writeCount; //if writecount > 32, sync_to_disk
+    private MyPageTable pt;
+    private int PAGE_SIZE = 64;
+    private Policy frameTracking;
+    private int virtMemSize;
+    private int physMemSize;
 
 
     //default constructor, should create instance of VirtMemory w/ 64KB virtual memory and 16kb
@@ -30,7 +30,7 @@ public class VirtMemory extends Memory {
     }
 
 
-    protected int[] parseVA(int va) { //{vpn, offset}
+    private int[] parseVA(int va) { //{vpn, offset}
         int[] arr = new int[2];
         arr[0] = va / PAGE_SIZE;
         arr[1] = va % PAGE_SIZE;
@@ -114,11 +114,13 @@ public class VirtMemory extends Memory {
     }
 
     //flush back dirty pages to disk
-    protected void sync_to_disk(){
-        Iterator<MyPageTable.PageTableEntry> ptIter = pt.iterator();
+    protected void sync_to_disk(){ //protected because it's protected in Memory.java
+        Iterator<Integer> ptIter = pt.iterator();
         MyPageTable.PageTableEntry current;
+        int currPFN;
         while(ptIter.hasNext()) {
-            current = ptIter.next();
+            currPFN = ptIter.next();
+            current = pt.getPTEbyPFN(currPFN);
             if(current.dirty) {
                 ram.store(current.vpn, current.pfn * PAGE_SIZE);
                 current.dirty = false;
@@ -131,7 +133,7 @@ public class VirtMemory extends Memory {
         // startAddress)
     }
 
-    protected void evictPage(MyPageTable.PageTableEntry pte) {
+    private void evictPage(MyPageTable.PageTableEntry pte) {
         if (pte.dirty) {
             ram.store(pte.vpn, pte.pfn * PAGE_SIZE);
             pte.dirty = false;
@@ -139,7 +141,7 @@ public class VirtMemory extends Memory {
         frameTracking.freeFrame(pte.pfn);
         pt.removePTE(pte);
     }
-    protected int handlePageFault(int vpn) { //returns pfn
+    private int handlePageFault(int vpn) { //returns pfn
         if (frameTracking.numFramesAvailable == 0) {
             int pfn = frameTracking.usedPfnToEvict();
             MyPageTable.PageTableEntry pte = pt.getPTEbyPFN(pfn);

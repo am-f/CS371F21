@@ -6,8 +6,8 @@ public class Policy {
     protected int numFrames;
     protected int numFramesAvailable;
     protected int numFramesUsed;
-    protected LinkedList<Integer> usedPFNs = new LinkedList<Integer>();
-    protected LinkedList<Integer> availablePFNs = new LinkedList<Integer>();
+    private LinkedList<Integer> usedPFNs = new LinkedList<Integer>();
+    private LinkedList<Integer> availablePFNs = new LinkedList<Integer>();
     protected Policy(int phySize) {
         numFrames = phySize / 64;
         numFramesAvailable = numFrames;
