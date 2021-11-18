@@ -48,4 +48,7 @@ public class Policy {
         numFramesAvailable++;
 
     }
+    protected void updatePage(int pfn) {
+        return;
+    }
 }
