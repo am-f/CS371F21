@@ -7,7 +7,7 @@ public class MyPageTable {
     private PageTableEntry[] vpnBuckets;
     private PageTableEntry[] pfnBuckets;
     private int numPTEs;
-
+    private final double DEFAULT_LOAD_FACTOR = 0.75;
 
     public MyPageTable(int physMemSize) {
         INITIAL_SIZE = physMemSize / 64;
@@ -90,7 +90,51 @@ public class MyPageTable {
         pte.pfnNext = finger;
         pfnBuckets[pfnKey] = pte;
         numPTEs++;
+
+        //after new element is added load factor is recalculated
+        double loadFactor = (1.0 * numPTEs) / INITIAL_SIZE;
+
+        //if load factor > 0.75 we need to rehash
+        if(loadFactor > DEFAULT_LOAD_FACTOR ){
+            rehash();
+            
+        }
+        
         return pte;
+    }
+
+    protected void rehash(){
+        //We'd need to rehash the vpn bucket list AND the pfn bucket list
+            //Current buckets are made into temps
+            PageTableEntry oldVpn[] = vpnBuckets;
+            PageTableEntry oldPfn[] = pfnBuckets;
+
+            //Old lists are made to be twice the size
+            vpnBuckets = new PageTableEntry[2 * INITIAL_SIZE];
+            pfnBuckets = new PageTableEntry[2 * INITIAL_SIZE];
+
+            for(int i = 0; i < (2 * INITIAL_SIZE); i++ ){
+                //all elements in new arrays are initialized to null
+                vpnBuckets[i] = null;
+                pfnBuckets[i] = null;
+            }
+
+            numPTEs = 0;
+            INITIAL_SIZE *= 2;
+            //loop through original vpn bucket list and insert it into the new list
+            for(int i = 0; i < oldVpn.length; i++){
+                //head of chain at index
+                PageTableEntry head = oldVpn[i];
+                while( head != null){
+                    int vpn = head.vpn;
+                    int vpnHash = hashCode(vpn) % INITIAL_SIZE;
+                    int pfn = head.pfn;
+                    int pfnHash = hashCode(pfn) % INITIAL_SIZE;
+
+                    vpnHash = vpnBuckets[i];
+                }
+            }
+
     }
 
     protected void removePTE(PageTableEntry pte) {
