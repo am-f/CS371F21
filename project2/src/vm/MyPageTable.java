@@ -3,31 +3,31 @@ import java.util.Iterator;
 
 public class MyPageTable {
 
-    private static int INITIAL_SIZE;
-    private static int hashSize;
+    private static int initialSize;
+    private static int HASH_SIZE;
     private PageTableEntry[] vpnBuckets;
     private PageTableEntry[] pfnBuckets;
     private int numPTEs;
     private final double DEFAULT_LOAD_FACTOR = 0.75;
 
     public MyPageTable(int physMemSize) {
-        INITIAL_SIZE = physMemSize / 64;
-        hashSize = physMemSize / 64;
-        vpnBuckets = new PageTableEntry[INITIAL_SIZE];
-        pfnBuckets = new PageTableEntry[INITIAL_SIZE];
+        initialSize = physMemSize / 64;
+        HASH_SIZE = physMemSize / 64;
+        vpnBuckets = new PageTableEntry[initialSize];
+        pfnBuckets = new PageTableEntry[initialSize];
         numPTEs = 0;
 
     }
 
 
     private int hashCode(int pn) {
-        int hash = (pn / hashSize);
+        int hash = (pn / HASH_SIZE);
         return hash;
     }
 
 
     protected PageTableEntry getPTEbyPFN(int pfn) {
-        int index = hashCode(pfn) % INITIAL_SIZE;
+        int index = hashCode(pfn) % initialSize;
         PageTableEntry finger = pfnBuckets[index];
         try {
             while (finger != null) {
@@ -45,25 +45,9 @@ public class MyPageTable {
         return null;
     }
 
-    // protected int getPFN(int vpn) throws PageFaultException {
-    //     try {
-    //         PageTableEntry pte = getPTEbyVPN(vpn);
-    //         return pte.pfn;
-
-    //     } catch (PageFaultException e) {
-    //         throw e;
-    //     }
-       
-    // }
-
-    // protected int getVPN(int pfn) throws NoPFNException {
-    //     PageTableEntry pte = getPTEbyPFN(pfn);
-    //     return pte.vpn;
-    // }
-
     protected PageTableEntry getPTEbyVPN(int vpn) throws PageFaultException { //returns pfn for vpn
         try {
-            int index = hashCode(vpn) % INITIAL_SIZE;
+            int index = hashCode(vpn) % initialSize;
             PageTableEntry finger = vpnBuckets[index];
             while (finger != null) {
                 if (finger.vpn == vpn) {
@@ -80,9 +64,9 @@ public class MyPageTable {
         return null;
     }
 
-    protected PageTableEntry addPTE(PageTableEntry pte, int INITIAL_SIZE) {
-        int vpnKey = hashCode(pte.vpn) % INITIAL_SIZE;
-        int pfnKey = hashCode(pte.pfn) % INITIAL_SIZE;
+    protected PageTableEntry addPTE(PageTableEntry pte, int initialSize) {
+        int vpnKey = hashCode(pte.vpn) % initialSize;
+        int pfnKey = hashCode(pte.pfn) % initialSize;
         PageTableEntry finger = vpnBuckets[vpnKey];
         pte.vpnNext = finger;
         vpnBuckets[vpnKey] = pte;
@@ -95,10 +79,10 @@ public class MyPageTable {
     }
     protected PageTableEntry addNewPTE(int vpn, int pfn) {
         PageTableEntry pte = new PageTableEntry(vpn, pfn);
-        addPTE(pte, INITIAL_SIZE);
+        addPTE(pte, initialSize);
         
         //after new element is added load factor is recalculated
-        double loadFactor = (1.0 * numPTEs) / INITIAL_SIZE;
+        double loadFactor = (1.0 * numPTEs) / initialSize;
         //if load factor > 0.75 we need to rehash
         if(loadFactor > DEFAULT_LOAD_FACTOR ){
             rehash();
@@ -113,10 +97,10 @@ public class MyPageTable {
             PageTableEntry oldPfn[] = pfnBuckets;
 
             //Old lists are made to be twice the size
-            this.vpnBuckets = new PageTableEntry[2 * INITIAL_SIZE];
-            this.pfnBuckets = new PageTableEntry[2 * INITIAL_SIZE];
+            this.vpnBuckets = new PageTableEntry[2 * initialSize];
+            this.pfnBuckets = new PageTableEntry[2 * initialSize];
              //numPTEs = 0;
-             INITIAL_SIZE *= 2;
+             initialSize *= 2;
 
 
             //loop through original vpn bucket list and insert it into the new list
@@ -133,40 +117,25 @@ public class MyPageTable {
                         //remove pte from old
                         //add pte to new
                         next = head.vpnNext;
-                        removePTE(head, oldVpn, oldPfn, INITIAL_SIZE);
-                        addPTE(head, INITIAL_SIZE * 2);
+                        removePTE(head, oldVpn, oldPfn, initialSize);
+                        addPTE(head, initialSize * 2);
                         //head = next;
                         head = oldVpn[i];
                     }
-                    /*
 
-                    int vpn = head.vpn;
-                    int pfn = head.pfn;
-
-                    PageTableEntry newPTE = new PageTableEntry(vpn, pfn);
-
-                    int vpnHash = hashCode(vpn) % INITIAL_SIZE;
-                    int pfnHash = hashCode(pfn) % INITIAL_SIZE;
-
-                    vpnBuckets[vpnHash] = newPTE;
-                    pfnBuckets[pfnHash] = newPTE;
-                    
-                    head = head.vpnNext;
-
-                     */
                 }
             }
 
     }
 
     protected void removePTE(PageTableEntry pte) {
-        removePTE(pte, vpnBuckets, pfnBuckets, INITIAL_SIZE);
+        removePTE(pte, vpnBuckets, pfnBuckets, initialSize);
     }
 
     protected void removePTE(PageTableEntry pte, PageTableEntry[] vpnBuckets,
-                             PageTableEntry[] pfnBuckets, int INITIAL_SIZE ) {
-        int vpnKey = hashCode(pte.vpn) % INITIAL_SIZE;
-        int pfnKey = hashCode(pte.pfn) % INITIAL_SIZE;
+                             PageTableEntry[] pfnBuckets, int initialSize ) {
+        int vpnKey = hashCode(pte.vpn) % initialSize;
+        int pfnKey = hashCode(pte.pfn) % initialSize;
         //vpn
         PageTableEntry finger = vpnBuckets[vpnKey];
         if (finger == pte) {
@@ -265,15 +234,6 @@ public class MyPageTable {
             numSeen++;
             return temp.pfn;
         }
-        /*
-        public PageTableEntry next() {
-            PageTableEntry temp = current;
-            current = getNext();
-            numSeen++;
-            return temp;
-
-        }
-         */
 
 
     }
