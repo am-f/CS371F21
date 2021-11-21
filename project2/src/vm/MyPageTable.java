@@ -125,13 +125,20 @@ public class MyPageTable {
             for(int i = 0; i < oldVpn.length; i++){
                 //head of chain at index
                 PageTableEntry head = oldVpn[i];
+
+                //TODO: Infinite Loop, does not update head within loop so it will never be null
                 while( head != null){
                     int vpn = head.vpn;
-                    int vpnHash = hashCode(vpn) % INITIAL_SIZE;
                     int pfn = head.pfn;
+
+                    PageTableEntry newPTE = new PageTableEntry(vpn, pfn);
+
+                    int vpnHash = hashCode(vpn) % INITIAL_SIZE;
                     int pfnHash = hashCode(pfn) % INITIAL_SIZE;
 
-                    vpnHash = vpnBuckets[i];
+                    vpnBuckets[vpnHash] = newPTE;
+                    pfnBuckets[pfnHash] = newPTE;
+
                 }
             }
 
