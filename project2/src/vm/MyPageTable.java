@@ -3,7 +3,7 @@ import java.util.Iterator;
 
 public class MyPageTable {
 
-    private static int initialSize;
+    private static int tableSize;
     private static int HASH_SIZE;
     private PageTableEntry[] vpnBuckets;
     private PageTableEntry[] pfnBuckets;
@@ -11,10 +11,10 @@ public class MyPageTable {
     private final double DEFAULT_LOAD_FACTOR = 0.75;
 
     public MyPageTable(int physMemSize) {
-        initialSize = physMemSize / 64;
+        tableSize = physMemSize / 64;
         HASH_SIZE = physMemSize / 64;
-        vpnBuckets = new PageTableEntry[initialSize];
-        pfnBuckets = new PageTableEntry[initialSize];
+        vpnBuckets = new PageTableEntry[tableSize];
+        pfnBuckets = new PageTableEntry[tableSize];
         numPTEs = 0;
 
     }
@@ -27,7 +27,7 @@ public class MyPageTable {
 
 
     protected PageTableEntry getPTEbyPFN(int pfn) {
-        int index = hashCode(pfn) % initialSize;
+        int index = hashCode(pfn) % tableSize;
         PageTableEntry finger = pfnBuckets[index];
         try {
             while (finger != null) {
@@ -47,7 +47,7 @@ public class MyPageTable {
 
     protected PageTableEntry getPTEbyVPN(int vpn) throws PageFaultException { //returns pfn for vpn
         try {
-            int index = hashCode(vpn) % initialSize;
+            int index = hashCode(vpn) % tableSize;
             PageTableEntry finger = vpnBuckets[index];
             while (finger != null) {
                 if (finger.vpn == vpn) {
@@ -64,9 +64,9 @@ public class MyPageTable {
         return null;
     }
 
-    protected PageTableEntry addPTE(PageTableEntry pte, int initialSize) {
-        int vpnKey = hashCode(pte.vpn) % initialSize;
-        int pfnKey = hashCode(pte.pfn) % initialSize;
+    private PageTableEntry addPTE(PageTableEntry pte, int tableSize) {
+        int vpnKey = hashCode(pte.vpn) % tableSize;
+        int pfnKey = hashCode(pte.pfn) % tableSize;
         PageTableEntry finger = vpnBuckets[vpnKey];
         pte.vpnNext = finger;
         vpnBuckets[vpnKey] = pte;
@@ -79,10 +79,10 @@ public class MyPageTable {
     }
     protected PageTableEntry addNewPTE(int vpn, int pfn) {
         PageTableEntry pte = new PageTableEntry(vpn, pfn);
-        addPTE(pte, initialSize);
+        addPTE(pte, tableSize);
         
         //after new element is added load factor is recalculated
-        double loadFactor = (1.0 * numPTEs) / initialSize;
+        double loadFactor = (1.0 * numPTEs) / tableSize;
         //if load factor > 0.75 we need to rehash
         if(loadFactor > DEFAULT_LOAD_FACTOR ){
             rehash();
@@ -90,18 +90,17 @@ public class MyPageTable {
         return pte;
     }
 
-    protected void rehash(){
+    private void rehash(){
         //We'd need to rehash the vpn bucket list AND the pfn bucket list
             //Current buckets are made into temps
             PageTableEntry oldVpn[] = vpnBuckets;
             PageTableEntry oldPfn[] = pfnBuckets;
 
             //Old lists are made to be twice the size
-            this.vpnBuckets = new PageTableEntry[2 * initialSize];
-            this.pfnBuckets = new PageTableEntry[2 * initialSize];
+            this.vpnBuckets = new PageTableEntry[2 * tableSize];
+            this.pfnBuckets = new PageTableEntry[2 * tableSize];
              //numPTEs = 0;
-             initialSize *= 2;
-
+             tableSize *= 2;
 
             //loop through original vpn bucket list and insert it into the new list
             for(int i = 0; i < oldVpn.length; i++){
@@ -112,14 +111,9 @@ public class MyPageTable {
                     continue;
                 }
                 else {
-                //TODO: Infinite Loop, does not update head within loop so it will never be null
                     while( head != null) {
-                        //remove pte from old
-                        //add pte to new
-                        next = head.vpnNext;
-                        removePTE(head, oldVpn, oldPfn, initialSize);
-                        addPTE(head, initialSize * 2);
-                        //head = next;
+                        removePTE(head, oldVpn, oldPfn, tableSize);
+                        addPTE(head, tableSize * 2);
                         head = oldVpn[i];
                     }
 
@@ -129,13 +123,13 @@ public class MyPageTable {
     }
 
     protected void removePTE(PageTableEntry pte) {
-        removePTE(pte, vpnBuckets, pfnBuckets, initialSize);
+        removePTE(pte, vpnBuckets, pfnBuckets, tableSize);
     }
 
-    protected void removePTE(PageTableEntry pte, PageTableEntry[] vpnBuckets,
-                             PageTableEntry[] pfnBuckets, int initialSize ) {
-        int vpnKey = hashCode(pte.vpn) % initialSize;
-        int pfnKey = hashCode(pte.pfn) % initialSize;
+    private void removePTE(PageTableEntry pte, PageTableEntry[] vpnBuckets,
+                      PageTableEntry[] pfnBuckets, int tableSize) {
+        int vpnKey = hashCode(pte.vpn) % tableSize;
+        int pfnKey = hashCode(pte.pfn) % tableSize;
         //vpn
         PageTableEntry finger = vpnBuckets[vpnKey];
         if (finger == pte) {
@@ -165,8 +159,13 @@ public class MyPageTable {
         numPTEs--;
     }
 
-    protected static class PageTableEntry { //Protected so VirtMemory can reference PTEs
-        // directly so VirtMemory.sync_to_disk() can store only dirty PTEs
+    protected static class PageTableEntry { //Protected so VirtMemory can reference PTEs directly
+        //so sync_to_disk() can check and change if the pte is dirty and store the pte if
+        // necessary without having to re-iterate through the table to find the pte by pfn (since
+        // it already found the pte earlier in the function). We are not super concerned with
+        // VirtMemory having access to PTEs since clients calling VirtMemory can only use what's
+        // public in VirtMemory, so they won't have access to PTEs (assuming the client is not
+        // a member of the vm package and can only import vm).
         int vpn;
         int pfn;
         boolean dirty;
@@ -234,7 +233,5 @@ public class MyPageTable {
             numSeen++;
             return temp.pfn;
         }
-
-
     }
 }
