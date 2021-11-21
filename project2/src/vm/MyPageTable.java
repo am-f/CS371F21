@@ -78,9 +78,7 @@ public class MyPageTable {
         return null;
     }
 
-
-    protected PageTableEntry addNewPTE(int vpn, int pfn) {
-        PageTableEntry pte = new PageTableEntry(vpn, pfn);
+    protected PageTableEntry addPTE(PageTableEntry pte) {
         int vpnKey = hashCode(pte.vpn) % INITIAL_SIZE;
         int pfnKey = hashCode(pte.pfn) % INITIAL_SIZE;
         PageTableEntry finger = vpnBuckets[vpnKey];
@@ -90,16 +88,17 @@ public class MyPageTable {
         pte.pfnNext = finger;
         pfnBuckets[pfnKey] = pte;
         numPTEs++;
-
         //after new element is added load factor is recalculated
         double loadFactor = (1.0 * numPTEs) / INITIAL_SIZE;
-
         //if load factor > 0.75 we need to rehash
         if(loadFactor > DEFAULT_LOAD_FACTOR ){
             rehash();
-            
         }
-        
+        return pte;
+    }
+    protected PageTableEntry addNewPTE(int vpn, int pfn) {
+        PageTableEntry pte = new PageTableEntry(vpn, pfn);
+        addPTE(pte);
         return pte;
     }
 
@@ -119,7 +118,7 @@ public class MyPageTable {
                 pfnBuckets[i] = null;
             }
 
-            numPTEs = 0;
+            //numPTEs = 0;
             INITIAL_SIZE *= 2;
             //loop through original vpn bucket list and insert it into the new list
             for(int i = 0; i < oldVpn.length; i++){
