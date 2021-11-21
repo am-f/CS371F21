@@ -88,17 +88,19 @@ public class MyPageTable {
         pte.pfnNext = finger;
         pfnBuckets[pfnKey] = pte;
         numPTEs++;
+
+        return pte;
+    }
+    protected PageTableEntry addNewPTE(int vpn, int pfn) {
+        PageTableEntry pte = new PageTableEntry(vpn, pfn);
+        addPTE(pte);
+        
         //after new element is added load factor is recalculated
         double loadFactor = (1.0 * numPTEs) / INITIAL_SIZE;
         //if load factor > 0.75 we need to rehash
         if(loadFactor > DEFAULT_LOAD_FACTOR ){
             rehash();
         }
-        return pte;
-    }
-    protected PageTableEntry addNewPTE(int vpn, int pfn) {
-        PageTableEntry pte = new PageTableEntry(vpn, pfn);
-        addPTE(pte);
         return pte;
     }
 
@@ -109,8 +111,8 @@ public class MyPageTable {
             PageTableEntry oldPfn[] = pfnBuckets;
 
             //Old lists are made to be twice the size
-            vpnBuckets = new PageTableEntry[2 * INITIAL_SIZE];
-            pfnBuckets = new PageTableEntry[2 * INITIAL_SIZE];
+            this.vpnBuckets = new PageTableEntry[2 * INITIAL_SIZE];
+            this.pfnBuckets = new PageTableEntry[2 * INITIAL_SIZE];
             //numPTEs = 0;
             INITIAL_SIZE *= 2;
 
@@ -119,9 +121,23 @@ public class MyPageTable {
             for(int i = 0; i < oldVpn.length; i++){
                 //head of chain at index
                 PageTableEntry head = oldVpn[i];
-
+                PageTableEntry next;
+                if(head == null) {
+                    continue;
+                }
+                else {
                 //TODO: Infinite Loop, does not update head within loop so it will never be null
-                while( head != null){
+                    while( head != null) {
+                        //remove pte from old
+                        //add pte to new
+                        next = head.vpnNext;
+                        removePTE(head, oldVpn, oldPfn);
+                        addPTE(head);
+                        //head = next;
+                        head = oldVpn[i];
+                    }
+                    /*
+
                     int vpn = head.vpn;
                     int pfn = head.pfn;
 
@@ -134,12 +150,18 @@ public class MyPageTable {
                     pfnBuckets[pfnHash] = newPTE;
                     
                     head = head.vpnNext;
+
+                     */
                 }
             }
 
     }
 
     protected void removePTE(PageTableEntry pte) {
+        removePTE(pte, vpnBuckets, pfnBuckets);
+    }
+    protected void removePTE(PageTableEntry pte, PageTableEntry[] vpnBuckets,
+                             PageTableEntry[] pfnBuckets) {
         int vpnKey = hashCode(pte.vpn) % INITIAL_SIZE;
         int pfnKey = hashCode(pte.pfn) % INITIAL_SIZE;
         //vpn
