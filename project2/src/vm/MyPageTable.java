@@ -111,26 +111,29 @@ public class MyPageTable {
             //Old lists are made to be twice the size
             vpnBuckets = new PageTableEntry[2 * INITIAL_SIZE];
             pfnBuckets = new PageTableEntry[2 * INITIAL_SIZE];
-
-            for(int i = 0; i < (2 * INITIAL_SIZE); i++ ){
-                //all elements in new arrays are initialized to null
-                vpnBuckets[i] = null;
-                pfnBuckets[i] = null;
-            }
-
             //numPTEs = 0;
             INITIAL_SIZE *= 2;
+
+
             //loop through original vpn bucket list and insert it into the new list
             for(int i = 0; i < oldVpn.length; i++){
                 //head of chain at index
                 PageTableEntry head = oldVpn[i];
+
+                //TODO: Infinite Loop, does not update head within loop so it will never be null
                 while( head != null){
                     int vpn = head.vpn;
-                    int vpnHash = hashCode(vpn) % INITIAL_SIZE;
                     int pfn = head.pfn;
+
+                    PageTableEntry newPTE = new PageTableEntry(vpn, pfn);
+
+                    int vpnHash = hashCode(vpn) % INITIAL_SIZE;
                     int pfnHash = hashCode(pfn) % INITIAL_SIZE;
 
-                    vpnHash = vpnBuckets[i];
+                    vpnBuckets[vpnHash] = newPTE;
+                    pfnBuckets[pfnHash] = newPTE;
+                    
+                    head = head.vpnNext;
                 }
             }
 
