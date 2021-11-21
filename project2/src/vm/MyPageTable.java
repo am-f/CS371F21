@@ -113,14 +113,10 @@ public class MyPageTable {
             vpnBuckets = new PageTableEntry[2 * INITIAL_SIZE];
             pfnBuckets = new PageTableEntry[2 * INITIAL_SIZE];
 
-            for(int i = 0; i < (2 * INITIAL_SIZE); i++ ){
-                //all elements in new arrays are initialized to null
-                vpnBuckets[i] = null;
-                pfnBuckets[i] = null;
-            }
-
-            numPTEs = 0;
+            //numPTEs = 0;
             INITIAL_SIZE *= 2;
+
+
             //loop through original vpn bucket list and insert it into the new list
             for(int i = 0; i < oldVpn.length; i++){
                 //head of chain at index
@@ -138,7 +134,8 @@ public class MyPageTable {
 
                     vpnBuckets[vpnHash] = newPTE;
                     pfnBuckets[pfnHash] = newPTE;
-
+                    
+                    head = head.vpnNext;
                 }
             }
 
