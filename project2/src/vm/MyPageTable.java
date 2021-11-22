@@ -195,27 +195,27 @@ public class MyPageTable {
             numSeen = 0;
             numLeft = numPTEs;
             currBucket = 0;
-            for ( ; currBucket < vpnBuckets.length; currBucket++) {
-                if (vpnBuckets[currBucket] == null) {
+            for ( ; currBucket < pfnBuckets.length; currBucket++) {
+                if (pfnBuckets[currBucket] == null) {
                     continue;
                 }
-                current = vpnBuckets[currBucket];
+                current = pfnBuckets[currBucket];
                 break;
             }
 
         }
         private PageTableEntry getNext() {
-            if(current.vpnNext == null) {
+            if(current.pfnNext == null) {
                 currBucket++;
-                for ( ; currBucket < vpnBuckets.length; currBucket++) {
-                    if (vpnBuckets[currBucket] == null) {
+                for ( ; currBucket < pfnBuckets.length; currBucket++) {
+                    if (pfnBuckets[currBucket] == null) {
                         continue;
                     }
-                    PageTableEntry next = vpnBuckets[currBucket];
+                    PageTableEntry next = pfnBuckets[currBucket];
                     return next;
                 }
             }
-            return current.vpnNext;
+            return current.pfnNext;
 
         }
 
@@ -234,4 +234,6 @@ public class MyPageTable {
             return temp.pfn;
         }
     }
+
+
 }

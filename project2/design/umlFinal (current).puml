@@ -10,9 +10,9 @@ abstract class vm.Memory {
 + void shutdown()
 }
 class vm.Policy {
-# int numFrames
-# int numFramesAvailable
-# int numFramesUsed
+- int numFrames
+- int numFramesAvailable
+- int numFramesUsed
 - LinkedList<Integer> usedPFNs
 - LinkedList<Integer> availablePFNs
 # int firstAvailPFN()
@@ -20,6 +20,7 @@ class vm.Policy {
 # int useAvailFrame()
 # void useFrame(int)
 # void freeFrame(int)
+# int numFramesAvailable()
 }
 class vm.VirtMemory {
 - int writeCount

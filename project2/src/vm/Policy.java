@@ -3,9 +3,9 @@ import java.util.LinkedList;
 
 public class Policy {
 
-    protected int numFrames;
-    protected int numFramesAvailable;
-    protected int numFramesUsed;
+    private int numFrames;
+    private int numFramesAvailable;
+    private int numFramesUsed;
     private LinkedList<Integer> usedPFNs = new LinkedList<Integer>();
     private LinkedList<Integer> availablePFNs = new LinkedList<Integer>();
     protected Policy(int phySize) {
@@ -41,5 +41,8 @@ public class Policy {
         availablePFNs.add(pfn);
         numFramesAvailable++;
 
+    }
+    protected int numFramesAvailable() {
+        return numFramesAvailable;
     }
 }

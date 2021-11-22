@@ -142,7 +142,7 @@ public class VirtMemory extends Memory {
         pt.removePTE(pte);
     }
     private int handlePageFault(int vpn) { //returns pfn
-        if (frameTracking.numFramesAvailable == 0) {
+        if (frameTracking.numFramesAvailable() == 0) {
             int pfn = frameTracking.usedPfnToEvict();
             MyPageTable.PageTableEntry pte = pt.getPTEbyPFN(pfn);
             evictPage(pte);
