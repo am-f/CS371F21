@@ -52,9 +52,10 @@ public class WordCountTest {
 
         //q3: What are the key value pairs stored in the concurrent KV stores by reducers when the reduce() is called for the first time? Please use the format of 
         //(key,{val_1,val_2,..val_n}).
-        //Answer:
-        
+        //Answer: The first time reduce() is called, reducer_0 will fetch from partition_0 and store the following into KV: ("bar", {1}), ("woof", {1}), ("fox", {1}), ("boss", {1})
+
         //q4: For key "foo", how many times does MRGetNext get invoked?
+        //Answer: MRGetNext gets invoked three times. 
     }
     @Test
     public  void test2_large_single() {
