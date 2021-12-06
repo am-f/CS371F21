@@ -7,4 +7,13 @@ public class BoundedBuffer <T> {
 //Please note the biggest difference between this BoundBuffer
 //and the one we demoed in class is <T>
 //implement member functions: deposit() and fetch()
+     public BoundedBuffer(int capacity) {
+
+     }
+     void deposit(T data) {
+
+     }
+     T fetch() {
+         return null;
+     }
 }

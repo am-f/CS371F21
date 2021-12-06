@@ -6,11 +6,26 @@ public class MyMapReduce extends MapReduce {
 	public void MREmit(Object key, Object value)
 	{
 		//TODO: your code here. Delete UnsupportedOperationException after your implementation is done.
+		/*From assignment doc:
+		The MREmit() function is thus another key part of your class; it needs to take key/value
+		pairs from the many different mappers and store them in a way that later reducers can
+		access them, given constraints described below. Designing and implementing this data
+		structure is thus a central challenge of the project: we will use  bounded buffer we
+		learned in class to transfer data between mappers and reducers.
+		 */
 		throw new UnsupportedOperationException();
 	}
 
 	public Object MRGetNext(Object key, int partition_number) {
 		//TODO: your code here. Delete UnsupportedOperationException after your implementation is done.
+		/*From assignment doc:
+		After the mappers are finished, your class should have stored the key/value pairs in such a
+		way that the Reduce() function can be called.Reduce() is invoked once per key and is passed
+		the key along with a function that enables iteration over all of the values that produced
+		that same key. To iterate, the code just calls MRGetNext() repeatedly until a NULL value is
+		returned;  MRGetNext() returns a value object passed in by the MREmit() function above, or
+		NULL when the key's values have been processed.
+		 */
 		throw new UnsupportedOperationException();
 	}
 	@Override

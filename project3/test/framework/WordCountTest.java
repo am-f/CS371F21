@@ -53,8 +53,15 @@ public class WordCountTest {
         //q3: What are the key value pairs stored in the concurrent KV stores by reducers when the reduce() is called for the first time? Please use the format of 
         //(key,{val_1,val_2,..val_n}).
         //Answer:
-        
+            //(bar, {1})
+            //(woof, {1})
+            //(fox, {1})
+            //(boss, {1})
+            //(foo, {1, 1, 1})
+            //(road, {1, 1})
+
         //q4: For key "foo", how many times does MRGetNext get invoked?
+        //Answer: 4 times. The first three times it returns 1, and the last time it returns NULL.
     }
     @Test
     public  void test2_large_single() {
