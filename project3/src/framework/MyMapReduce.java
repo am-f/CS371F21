@@ -21,7 +21,7 @@ public class MyMapReduce extends MapReduce {
 		 */
 		throw new UnsupportedOperationException();
 	}
-	private intermediateReduce(PartitionTable pTable, ConcurrentKVStore conStore) {
+	private void intermediateReduce(PartitionTable pTable, ConcurrentKVStore conStore) {
 		/*
 		while(pTable isn't empty) {
 			kvPair kv = pTable.get();
