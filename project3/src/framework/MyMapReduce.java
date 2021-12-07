@@ -21,12 +21,17 @@ public class MyMapReduce extends MapReduce {
 		 */
 		throw new UnsupportedOperationException();
 	}
-	// private intermediateReduce(...) {
-	// 	//once mappers are done, partition table is full
-	// 	//takes KVs from PartitionTable to concurrentKV store
-	// 	//once all KVs are in concurrentKV store
-	// 	//user calls
-	// }
+	private intermediateReduce(PartitionTable pTable, ConcurrentKVStore conStore) {
+		/*
+		while(pTable isn't empty) {
+			kvPair kv = pTable.get();
+			conStore.add(kvPair);
+		}
+		for each unique key in pTable {
+			user-Reduce(key, pTable)
+		}
+		 */
+	}
 
 	public Object MRGetNext(Object key, int partition_number) { //KV from
 		// PartitionTable-->ConcurrentKVStore
@@ -54,8 +59,8 @@ public class MyMapReduce extends MapReduce {
 		//steps:
 			//create i mapper threads which do function mapperReducerObj.Map(pw[0...i])
 			//create i reducer threads which do internal function reduce(pt[0...i]) that moves
-			// KVs from pt[i]-->ConcurrentStore then calls user-defined Reduce(key, i) for each
-			// key in pt[i]
+				// KVs from pt[i]-->ConcurrentStore then calls user-defined Reduce(key, i) for each
+				// key in pt[i]
 
 
 		/*
