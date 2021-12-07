@@ -16,7 +16,7 @@ public class WordCountTest {
             try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
                 String token;
                 while ((token = br.readLine()) != null) {
-                    myMapReduce.MREmit(token, "1");
+                    myMapReduce.MREmit(token, "1"); //puts KV in buffer via partition table
                 }
                 br.close();
             } catch (Exception e) {
@@ -63,6 +63,7 @@ public class WordCountTest {
         //q4: For key "foo", how many times does MRGetNext get invoked?
         //Answer: 4 times. The first three times it returns 1, and the last time it returns NULL.
     }
+
     @Test
     public  void test2_large_single() {
         WordCount wordCountInstance = new WordCount(new MyMapReduce());
