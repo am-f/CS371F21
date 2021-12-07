@@ -3,6 +3,11 @@ import java.util.logging.Level;
 public class MyMapReduce extends MapReduce {
 	//TODO: your code here. Define all attributes 
 	//What is in a running instance of MapReduce?
+	PartitionTable pTable;
+	ConcurrentKVStore kvStore;
+	MapperReducerClientAPI client;
+
+
 	public void MREmit(Object key, Object value) //KV from File-->PartitionTable
 	{
 		//TODO: your code here. Delete UnsupportedOperationException after your implementation is done.
@@ -21,7 +26,7 @@ public class MyMapReduce extends MapReduce {
 		 */
 		throw new UnsupportedOperationException();
 	}
-	private intermediateReduce(PartitionTable pTable, ConcurrentKVStore conStore) {
+	private void intermediateReduce(PartitionTable pTable, ConcurrentKVStore conStore) {
 		/*
 		while(pTable isn't empty) {
 			kvPair kv = pTable.get();
@@ -33,8 +38,7 @@ public class MyMapReduce extends MapReduce {
 		 */
 	}
 
-	public Object MRGetNext(Object key, int partition_number) { //KV from
-		// PartitionTable-->ConcurrentKVStore
+	public Object MRGetNext(Object key, int partition_number) {
 		//TODO: your code here. Delete UnsupportedOperationException after your implementation is done.
 		/*From assignment doc:
 		After the mappers are finished, your class should have stored the key/value pairs in such a
