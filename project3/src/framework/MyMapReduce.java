@@ -15,7 +15,6 @@ public class MyMapReduce extends MapReduce {
 	int numMappers;
 	int numReducers;
 	private Lock lock = new ReentrantLock(); //currently very coarse granularity
-	private Condition mappingComplete = lock.newCondition();
 	boolean allMappersDone = false;
 	int numMappersDone = 0;
 
@@ -27,7 +26,7 @@ public class MyMapReduce extends MapReduce {
 
 		/*
 		int pNum = Partitioner(key, numMappers)
-		pTable[pNum].fill(key, value)
+		pTable[pNum].deposit(key, value)
 		 */
 
 		/*From assignment doc:
@@ -40,16 +39,16 @@ public class MyMapReduce extends MapReduce {
 		throw new UnsupportedOperationException();
 	}
 	private LinkedList intermediateReduce(PartitionTable.Partition partition) {
+		LinkedList<Object> uniqueKeys = new LinkedList();
 		/*
-		LinkedList<Object> uniqueKeys;
 		PartitionTable.Partition.kvPair kv;
 		while(((kv = partition.fetch()) && kv.key != null)
 			kvStore.add(kvPair);
 			if(uniqueKeys.contains(kv.key) {
 				uniqueKeys.add(kv.key);
 		}
+		*/
 		return uniqueKeys;
-		 */
 
 	}
 
@@ -101,9 +100,7 @@ public class MyMapReduce extends MapReduce {
 
 
 	private class Mapper implements Runnable{
-		private PartitionTable.Partition p;
-
-		public Mapper(String inputSource) {
+		Mapper(String inputSource) {
 			/**/
 			run();
 		}
@@ -111,13 +108,12 @@ public class MyMapReduce extends MapReduce {
 		public void run() {
 			while(true/*   */) {
 				//Map(whatever);
-				//MREmit(null, null);
 				//then:
 				lock.lock();
 				numMappersDone++;
 				if(numMappersDone==numMappers) {
+					//for each pTable: pTable[0.....i].deposit(null, null)
 					allMappersDone = true;
-					mappingComplete.signalAll();
 				}
 				lock.unlock();
 			}
@@ -126,7 +122,7 @@ public class MyMapReduce extends MapReduce {
 	private class Reducer implements Runnable {
 		private PartitionTable.Partition partition;
 
-		public Reducer(PartitionTable.Partition p) {
+		Reducer(PartitionTable.Partition p) {
 			this.partition = p;
 			run();
 		}
@@ -135,20 +131,7 @@ public class MyMapReduce extends MapReduce {
 			while(true/*   */) {
 				//do intermediate reduce:
 				//LinkedList<Object> uniqueKeys = intermediateReduce(partition);
-
-				//then check if all mappers are done:
-				lock.lock();
-				try {
-					while (allMappersDone == false) {
-						mappingComplete.await();
-					}
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				} finally {
-					lock.unlock();
-				}
-
-				//then (once it gets woken back up)
+				//intermediateReduce will not return until all mappers are done
 				//do user reduce for each unique key in pTable
 
 			}
