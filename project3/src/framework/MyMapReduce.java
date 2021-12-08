@@ -1,4 +1,9 @@
 package framework;
+import utils.BoundedBuffer;
+
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 public class MyMapReduce extends MapReduce {
 	//TODO: your code here. Define all attributes 
@@ -6,6 +11,13 @@ public class MyMapReduce extends MapReduce {
 	PartitionTable pTable;
 	ConcurrentKVStore kvStore;
 	MapperReducerClientAPI client;
+	int numMappers;
+	int numReducers;
+	private Lock lock = new ReentrantLock(); //currently very coarse granularity
+	private Condition mappingComplete = lock.newCondition();
+	boolean allMappersDone = false;
+	int numMappersDone = 0;
+
 
 
 	public void MREmit(Object key, Object value) //KV from File-->PartitionTable
@@ -26,11 +38,11 @@ public class MyMapReduce extends MapReduce {
 		 */
 		throw new UnsupportedOperationException();
 	}
-	private void intermediateReduce(PartitionTable pTable, ConcurrentKVStore conStore) {
+	private void intermediateReduce(PartitionTable.Partition partition) {
 		/*
-		while(pTable isn't empty) {
-			kvPair kv = pTable.get();
-			conStore.add(kvPair);
+		PartitionTable.Partition.kvPair kv;
+		while(((kv = partition.fetch()) && kv.key != null)
+			kvStore.add(kvPair);
 		}
 		for each unique key in pTable {
 			user-Reduce(key, pTable)
@@ -59,9 +71,17 @@ public class MyMapReduce extends MapReduce {
 		//TODO: your code here. Delete UnsupportedOperationException after your implementation is done.
 
 		//our control flow?
+		//instantiates stuff
+		pTable = new PartitionTable(num_mappers);
+		kvStore = new ConcurrentKVStore();
+		client = mapperReducerObj;
+		client.Map(inputFileName);
+		numMappers = num_mappers;
+		numReducers = num_reducers;
 		// creates and calls threads
 		//steps:
 			//create i mapper threads which do function mapperReducerObj.Map(pw[0...i])
+				//after a mapper thread calls Map(pw[i]); call MREmit(null, null);
 			//create i reducer threads which do internal function reduce(pt[0...i]) that moves
 				// KVs from pt[i]-->ConcurrentStore then calls user-defined Reduce(key, i) for each
 				// key in pt[i]
@@ -74,5 +94,57 @@ public class MyMapReduce extends MapReduce {
 			-->count++-->stats[pNum]++}-->MRPostProcess(key, count, pNum)
 		 */
 		throw new UnsupportedOperationException();
+	}
+
+
+	private class Mapper implements Runnable{
+		private PartitionTable.Partition p;
+
+		public Mapper(String inputSource) {
+			/**/
+		}
+		@Override
+		public void run() {
+			while(true/*   */) {
+				//Map(whatever);
+				//then:
+				lock.lock();
+				numMappersDone++;
+				if(numMappersDone==numMappers) {
+					allMappersDone = true;
+					mappingComplete.signalAll();
+				}
+				lock.unlock();
+			}
+		}
+	}
+	private class Reducer implements Runnable {
+		private PartitionTable.Partition p;
+
+		public Reducer(PartitionTable.Partition p) {
+			this.p = p;
+		}
+		@Override
+		public void run() {
+			while(true/*   */) {
+				//do intermediate reduce
+				//then:
+
+				lock.lock();
+				try {
+					while (allMappersDone == false) {
+						mappingComplete.await();
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} finally {
+					lock.unlock();
+				}
+				//then
+				//do user reduce
+
+			}
+
+		}
 	}
 }

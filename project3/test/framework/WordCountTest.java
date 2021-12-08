@@ -18,6 +18,7 @@ public class WordCountTest {
                 while ((token = br.readLine()) != null) {
                     myMapReduce.MREmit(token, "1"); //puts KV in buffer via partition table
                 }
+
                 br.close();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -81,4 +82,7 @@ public class WordCountTest {
                 ("res/cybersla", wordCountInstance, 8, 8);
         assertEquals(0, ret);
     }
+
+
+
 }

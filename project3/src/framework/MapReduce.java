@@ -30,7 +30,7 @@ public abstract class MapReduce {
     abstract protected void MRRunHelper(String inputFileName,
                                         MapperReducerClientAPI mapperReducerObj,
                                         int num_mappers,
-                                        int num_reducers) ;
+                                        int num_reducers);
 
     public void MRPostProcess(String key, int value, int partNum) {
         //The following is only IO for post-process
