@@ -1,5 +1,6 @@
 package framework;
 import utils.BoundedBuffer;
+import java.util.LinkedList;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -38,16 +39,18 @@ public class MyMapReduce extends MapReduce {
 		 */
 		throw new UnsupportedOperationException();
 	}
-	private void intermediateReduce(PartitionTable.Partition partition) {
+	private LinkedList intermediateReduce(PartitionTable.Partition partition) {
 		/*
+		LinkedList<Object> uniqueKeys;
 		PartitionTable.Partition.kvPair kv;
 		while(((kv = partition.fetch()) && kv.key != null)
 			kvStore.add(kvPair);
+			if(uniqueKeys.contains(kv.key) {
+				uniqueKeys.add(kv.key);
 		}
-		for each unique key in pTable {
-			user-Reduce(key, pTable)
-		}
+		return uniqueKeys;
 		 */
+
 	}
 
 	public Object MRGetNext(Object key, int partition_number) {
@@ -102,11 +105,13 @@ public class MyMapReduce extends MapReduce {
 
 		public Mapper(String inputSource) {
 			/**/
+			run();
 		}
 		@Override
 		public void run() {
 			while(true/*   */) {
 				//Map(whatever);
+				//MREmit(null, null);
 				//then:
 				lock.lock();
 				numMappersDone++;
@@ -119,17 +124,19 @@ public class MyMapReduce extends MapReduce {
 		}
 	}
 	private class Reducer implements Runnable {
-		private PartitionTable.Partition p;
+		private PartitionTable.Partition partition;
 
 		public Reducer(PartitionTable.Partition p) {
-			this.p = p;
+			this.partition = p;
+			run();
 		}
 		@Override
 		public void run() {
 			while(true/*   */) {
-				//do intermediate reduce
-				//then:
+				//do intermediate reduce:
+				//LinkedList<Object> uniqueKeys = intermediateReduce(partition);
 
+				//then check if all mappers are done:
 				lock.lock();
 				try {
 					while (allMappersDone == false) {
@@ -140,8 +147,9 @@ public class MyMapReduce extends MapReduce {
 				} finally {
 					lock.unlock();
 				}
-				//then
-				//do user reduce
+
+				//then (once it gets woken back up)
+				//do user reduce for each unique key in pTable
 
 			}
 
