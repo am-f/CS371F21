@@ -5,25 +5,28 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class PartitionTable {
+class PartitionTable {
 
 
 
     Partition[] partitions;
 
-    public PartitionTable(int numMappers) {
+    PartitionTable(int numMappers) {
         partitions = new Partition[numMappers];
+        for(int i = 0; i < numMappers; i++) {
+            partitions[i] = new Partition();
+        }
 
     }
 
 
-    public class Partition<kvPair> extends BoundedBuffer {
+    class Partition<kvPair> extends BoundedBuffer {
         //TODO: your codde here
-        protected class kvPair {
+        class kvPair {
             Object key;
             Object value;
         }
-        public Partition() {
+        Partition() {
             super(50);
         }
         //Notes:
