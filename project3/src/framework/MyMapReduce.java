@@ -9,14 +9,16 @@ import java.util.logging.Level;
 public class MyMapReduce extends MapReduce {
 	//TODO: your code here. Define all attributes 
 	//What is in a running instance of MapReduce?
-	PartitionTable pTable;
-	ConcurrentKVStore kvStore;
-	MapperReducerClientAPI client;
-	int numMappers;
-	int numReducers;
+	private PartitionTable pTable;
+	private ConcurrentKVStore kvStore;
+	private MapperReducerClientAPI client;
+	private int numMappers;
+	private int numReducers;
 	private Lock lock = new ReentrantLock(); //currently very coarse granularity
-	boolean allMappersDone = false;
-	int numMappersDone = 0;
+	private boolean allMappersDone = false;
+	private int numMappersDone = 0;
+	private Thread[] mappers;
+	private Thread[] reducers;
 
 
 
@@ -99,7 +101,7 @@ public class MyMapReduce extends MapReduce {
 	}
 
 
-	private class Mapper implements Runnable{
+	private class Mapper implements Runnable {
 		Mapper(String inputSource) {
 			/**/
 			run();

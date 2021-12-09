@@ -7,8 +7,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 class PartitionTable {
 
-
-
     Partition[] partitions;
 
     PartitionTable(int numMappers) {
@@ -16,7 +14,6 @@ class PartitionTable {
         for(int i = 0; i < numMappers; i++) {
             partitions[i] = new Partition();
         }
-
     }
 
 
@@ -35,8 +32,6 @@ class PartitionTable {
         // (2) if reducer_i wants to fetch a KV pair it can
         // only fetches from partition_i, but mapper_i can drop messages
         // into different partitions.
-
-
     }
 
 }
