@@ -78,6 +78,9 @@ public class MyMapReduce extends MapReduce {
 		returned;  MRGetNext() returns a value object passed in by the MREmit() function above, or
 		NULL when the key's values have been processed.
 		 */
+
+		kvStore.get(key);
+				 
 		throw new UnsupportedOperationException();
 	}
 	@Override
