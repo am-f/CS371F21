@@ -93,7 +93,7 @@ public class MyMapReduce extends MapReduce {
 		pTable = new PartitionTable(num_mappers);
 		kvStore = new ConcurrentKVStore();
 		client = mapperReducerObj;
-		client.Map(inputFileName);
+		//client.Map(inputFileName);
 		numMappers = num_mappers;
 		numReducers = num_reducers;
 		// creates and calls threads
@@ -103,7 +103,14 @@ public class MyMapReduce extends MapReduce {
 			//create i reducer threads which do internal function reduce(pt[0...i]) that moves
 				// KVs from pt[i]-->ConcurrentStore then calls user-defined Reduce(key, i) for each
 				// key in pt[i]
-
+		Thread[] mappers = new Thread[numMappers];
+		Thread[] reducers = new Thread[numReducers];
+		for(int i = 0; i < numMappers; i++) {
+			mappers[i] = new Thread(new Mapper(inputFileName, pTable));
+		}
+		for(int i = 0; i < numReducers; i++) {
+			reducers[i] = new Thread(new Reducer(pTable.partitions[i]));
+		}
 
 		/*
 			Map(file)-->{while (token=file.nextLine)!=null->MREmit(token, "1")}
@@ -116,22 +123,35 @@ public class MyMapReduce extends MapReduce {
 
 
 	private class Mapper implements Runnable {
-		Mapper(String inputSource) {
+		PartitionTable pTable;
+		String inputSource;
+
+
+		Mapper(String inputSource, PartitionTable pTable) {
+			this.pTable = pTable;
+			this.inputSource = inputSource;
 			/**/
 			run();
 		}
 		@Override
 		public void run() {
 			while(true/*   */) {
+
 				//Map(whatever);
+
 				//then:
 				lock.lock();
 				numMappersDone++;
 				if(numMappersDone==numMappers) {
-					//for each pTable: pTable[0.....i].deposit(null, null)
 					allMappersDone = true;
+					lock.unlock();
+
+					//for each pTable: pTable[0.....i].deposit(null, null)
+
 				}
-				lock.unlock();
+				else {
+					lock.unlock();
+				}
 			}
 		}
 	}
