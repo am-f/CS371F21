@@ -105,11 +105,13 @@ public class MyMapReduce extends MapReduce {
 				// key in pt[i]
 		Thread[] mappers = new Thread[numMappers];
 		Thread[] reducers = new Thread[numReducers];
+		String splitFile;
 		for(int i = 0; i < numMappers; i++) {
-			mappers[i] = new Thread(new Mapper(inputFileName, pTable));
+			splitFile = String.format(inputFileName + ".%02d", i);
+			mappers[i] = new Thread(new Mapper(splitFile, pTable, client));
 		}
 		for(int i = 0; i < numReducers; i++) {
-			reducers[i] = new Thread(new Reducer(pTable.partitions[i]));
+			reducers[i] = new Thread(new Reducer(pTable.partitions[i], client));
 		}
 
 		/*
@@ -125,41 +127,43 @@ public class MyMapReduce extends MapReduce {
 	private class Mapper implements Runnable {
 		PartitionTable pTable;
 		String inputSource;
+		MapperReducerClientAPI client;
 
-
-		Mapper(String inputSource, PartitionTable pTable) {
+		Mapper(String inputSource, PartitionTable pTable, MapperReducerClientAPI client) {
 			this.pTable = pTable;
 			this.inputSource = inputSource;
+			this.client = client;
 			/**/
 			run();
 		}
+
 		@Override
 		public void run() {
-			while(true/*   */) {
-
-				//Map(whatever);
-
-				//then:
-				lock.lock();
-				numMappersDone++;
-				if(numMappersDone==numMappers) {
+			//create i mapper threads which do function mapperReducerObj.Map(pw[0...i])
+			client.Map(inputSource);
+			lock.lock();
+			numMappersDone++;
+			try {
+				if (numMappersDone == numMappers) {
 					allMappersDone = true;
-					lock.unlock();
-
-					//for each pTable: pTable[0.....i].deposit(null, null)
-
+					for (int i = 0; i < pTable.size(); i++) {
+						pTable.partitions[i].deposit(null, null);
+					}
 				}
-				else {
-					lock.unlock();
-				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} finally {
+				lock.unlock();
 			}
 		}
 	}
 	private class Reducer implements Runnable {
 		private PartitionTable.Partition partition;
+		MapperReducerClientAPI client;
 
-		Reducer(PartitionTable.Partition p) {
+		Reducer(PartitionTable.Partition p, MapperReducerClientAPI client) {
 			this.partition = p;
+			this.client = client;
 			run();
 		}
 		@Override
@@ -169,6 +173,12 @@ public class MyMapReduce extends MapReduce {
 				//LinkedList<Object> uniqueKeys = intermediateReduce(partition);
 				//intermediateReduce will not return until all mappers are done
 				//do user reduce for each unique key in pTable
+
+
+
+				//create i reducer threads which do internal function reduce(pt[0...i]) that moves
+				// KVs from pt[i]-->ConcurrentStore then calls user-defined Reduce(key, i) for each
+				// key in pt[i]
 
 			}
 

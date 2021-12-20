@@ -4,12 +4,17 @@ import utils.*;
 class PartitionTable {
 
     Partition[] partitions;
+    private int size;
 
     PartitionTable(int numMappers) {
         partitions = new Partition[numMappers];
+        size = numMappers;
         for(int i = 0; i < numMappers; i++) {
             partitions[i] = new Partition();
         }
+    }
+    int size() {
+        return size;
     }
 
 
