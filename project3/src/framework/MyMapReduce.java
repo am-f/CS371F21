@@ -22,14 +22,21 @@ public class MyMapReduce extends MapReduce {
 
 
 
-	public void MREmit(Object key, Object value) //KV from File-->PartitionTable
+	public void MREmit(Object key, Object value)  //KV from File-->PartitionTable
 	{
 		//TODO: your code here. Delete UnsupportedOperationException after your implementation is done.
 
-		/*
-		int pNum = Partitioner(key, numMappers)
-		pTable[pNum].deposit(key, value)
-		 */
+
+		int pNum = (int)client.Partitioner(key, numMappers);
+		try {
+			pTable.partitions[pNum].deposit(key, value);
+
+
+
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
 
 		/*From assignment doc:
 		The MREmit() function is thus another key part of your class; it needs to take key/value
@@ -38,18 +45,25 @@ public class MyMapReduce extends MapReduce {
 		structure is thus a central challenge of the project: we will use  bounded buffer we
 		learned in class to transfer data between mappers and reducers.
 		 */
-		throw new UnsupportedOperationException();
+		//throw new UnsupportedOperationException();
 	}
 	private LinkedList intermediateReduce(PartitionTable.Partition partition) {
 		LinkedList<Object> uniqueKeys = new LinkedList();
-		/*
-		PartitionTable.Partition.kvPair kv;
-		while(((kv = partition.fetch()) && kv.key != null)
-			kvStore.add(kvPair);
-			if(uniqueKeys.contains(kv.key) {
-				uniqueKeys.add(kv.key);
+
+		KVPair kv;
+		try {
+			kv = (KVPair)partition.fetch();
+			while (kv.key != null) {
+				kvStore.put(kv.key, kv.value);
+				if (uniqueKeys.contains(kv.key)) {
+					uniqueKeys.add(kv.key);
+				}
+				kv = (KVPair)partition.fetch();
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
-		*/
+
 		return uniqueKeys;
 
 	}
@@ -97,7 +111,7 @@ public class MyMapReduce extends MapReduce {
 			Reduce(key, pNum)-->count=0-->{while MRGetNext(key, pNum) != null)
 			-->count++-->stats[pNum]++}-->MRPostProcess(key, count, pNum)
 		 */
-		throw new UnsupportedOperationException();
+		//throw new UnsupportedOperationException();
 	}
 
 
