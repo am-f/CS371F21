@@ -111,7 +111,7 @@ public class MyMapReduce extends MapReduce {
 			mappers[i] = new Thread(new Mapper(splitFile, pTable, client));
 		}
 		for(int i = 0; i < numReducers; i++) {
-			reducers[i] = new Thread(new Reducer(pTable.partitions[i], client));
+			reducers[i] = new Thread(new Reducer(pTable.partitions[i], i, client));
 		}
 
 		/*
@@ -159,20 +159,26 @@ public class MyMapReduce extends MapReduce {
 	}
 	private class Reducer implements Runnable {
 		private PartitionTable.Partition partition;
+		int pNum;
 		MapperReducerClientAPI client;
 
-		Reducer(PartitionTable.Partition p, MapperReducerClientAPI client) {
+		Reducer(PartitionTable.Partition p, int i, MapperReducerClientAPI client) {
 			this.partition = p;
+			this.pNum = i;
 			this.client = client;
 			run();
 		}
 		@Override
 		public void run() {
-			while(true/*   */) {
 				//do intermediate reduce:
-				//LinkedList<Object> uniqueKeys = intermediateReduce(partition);
+			LinkedList<Object> uniqueKeys = intermediateReduce(partition);
+			Object key;
 				//intermediateReduce will not return until all mappers are done
 				//do user reduce for each unique key in pTable
+			while(((key = uniqueKeys.pollFirst()) != null)) {
+				client.Reduce(key, pNum);
+			}
+
 
 
 
@@ -180,7 +186,6 @@ public class MyMapReduce extends MapReduce {
 				// KVs from pt[i]-->ConcurrentStore then calls user-defined Reduce(key, i) for each
 				// key in pt[i]
 
-			}
 
 		}
 	}
