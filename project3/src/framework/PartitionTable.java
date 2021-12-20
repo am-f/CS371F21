@@ -1,10 +1,6 @@
 package framework;
 import utils.*;
 
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 class PartitionTable {
 
     Partition[] partitions;
@@ -19,9 +15,13 @@ class PartitionTable {
 
     class Partition<kvPair> extends BoundedBuffer {
         //TODO: your codde here
-        class kvPair {
+        class KVPair {
             Object key;
             Object value;
+            public KVPair(Object key, Object value) {
+                this.key = key;
+                this.value = value;
+            }
         }
         Partition() {
             super(50);
@@ -32,6 +32,14 @@ class PartitionTable {
         // (2) if reducer_i wants to fetch a KV pair it can
         // only fetches from partition_i, but mapper_i can drop messages
         // into different partitions.
+
+        public void deposit(Object key, Object value) throws InterruptedException {
+            super.deposit(new KVPair(key, value));
+        }
+
+        public Object fetch() throws InterruptedException {
+            return super.fetch();
+        }
     }
 
 }
