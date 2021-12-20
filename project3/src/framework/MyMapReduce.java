@@ -26,10 +26,9 @@ public class MyMapReduce extends MapReduce {
 	{
 		//TODO: your code here. Delete UnsupportedOperationException after your implementation is done.
 
-		/*
-		int pNum = Partitioner(key, numMappers)
-		pTable[pNum].deposit(key, value)
-		 */
+		int pNum = (int)client.Partitioner(key, numMappers);
+		//pTable.partitions[pNum].deposit(key, value);
+		
 
 		/*From assignment doc:
 		The MREmit() function is thus another key part of your class; it needs to take key/value

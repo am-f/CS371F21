@@ -9,6 +9,14 @@ package framework;
 // concurrent hashmap/tree to implement the concurrent KV store
 
 
+/**
+ * If you choose to implement a concurrent hashmap to hold key-value pairs
+ *  inserted concurrently by reducers,  you are required to support high
+ *  concurrency by locking at the bucket level rather than the entire hashmap.  
+ * Please note that high concurrency contributes to better performance, 
+ * and it will be evaluated in tests.
+ */
+
 /**Modeled after provided single-threaded SimpleHashMap (https://replit.com/join/ezbeltcxsd-junyuan2**/
 
 public class ConcurrentKVStore<K, V> {
@@ -71,7 +79,8 @@ public class ConcurrentKVStore<K, V> {
         }
         return e;
     }
-
+   
+    //make this concurrent
     public V put(K arg0, V arg1) {
         int i = index(arg0);
         if(table[i] == null) {
@@ -109,6 +118,7 @@ public class ConcurrentKVStore<K, V> {
         }
     }
 
+    //make this concurrent
     public V remove(Object arg0) {
         K key = (K)arg0;
         int i = index(key);
