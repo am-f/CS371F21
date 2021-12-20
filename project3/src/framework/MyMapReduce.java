@@ -173,7 +173,7 @@ public class MyMapReduce extends MapReduce {
 		}
 		@Override
 		public void run() {
-				//do intermediate reduce:
+			//do intermediate reduce:
 			LinkedList<Object> uniqueKeys = intermediateReduce(partition);
 			Object key;
 				//intermediateReduce will not return until all mappers are done
