@@ -21,7 +21,7 @@ public class ConcurrentKVStore<K, V> {
     double loadfactor;
     Entry<K,V>[] table;
     Lock[] tableLocks;
-    Lock miscAttributesLock;
+    Lock miscAttributeLock;
 
     public ConcurrentKVStore() {
         this(16);
@@ -36,6 +36,7 @@ public class ConcurrentKVStore<K, V> {
         this.size = 0;
         this.loadfactor = loadfactor;
         this.table = (Entry<K,V>[]) new Entry[capacity];
+        tableLocks = new ReentrantLock[capacity];
         
         for(int i = 0; i < capacity; i++){
             this.tableLocks[i] = new ReentrantLock();
@@ -109,22 +110,44 @@ public class ConcurrentKVStore<K, V> {
             e.next = new Entry<K,V>(arg0, arg1);
         }
         
-        this.tableLocks[index].unlock();//turn off locks for tableLocks[i]
+        this.tableLocks[i].unlock();//turn off locks for tableLocks[i]
 
-        this.miscAttributeLock.lock();//turn on locks for main table attributes
+        this.miscAttributeLock.lock();//turn on locks for main table attributes, this is unlocked
+        // in rehash
         size++;
         if(size > capacity*loadfactor) {
-            capacity *= 2;
             rehash();
         }
-        this.miscAttributeLock.unlock();//turn on locks for main table attributes
+        else {
+            this.miscAttributeLock.lock();
+        }
+
         return null;
     }
 
     private void rehash() {
+        //turn on locks for main table attributes
+        //lock it down
+        int oldCapacity = capacity;
+        for(int i = 0; i < oldCapacity; i++){
+            tableLocks[i].lock();
+        }
+        capacity *= 2;
+        size = 0;
+
         Entry<K,V>[] old_table = table;
         table = (Entry<K,V>[]) new Entry[capacity];
-        size = 0;
+        Lock[] oldLocks = tableLocks;
+        tableLocks = new ReentrantLock[capacity];
+        for(int i = 0; i < capacity; i++){
+            this.tableLocks[i] = new ReentrantLock();
+        }
+        for(int i = 0; i < oldCapacity; i++){
+            oldLocks[i].unlock();
+        }
+        this.miscAttributeLock.unlock();
+        //unlock it down
+
         for(Entry<K,V> e : old_table) {
             while(e != null) {
                 put(e.getKey(), e.getValue());
