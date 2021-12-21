@@ -1,7 +1,11 @@
 package utils;
+import framework.MyMapReduce;
+
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**Modeled after in-class demo code for BoundedBuffer (https://jyuan2pace.github.io/CS371F21/ostep-code/BoundedBuffer.java)**/
 public class BoundedBuffer <T> {
@@ -17,6 +21,7 @@ public class BoundedBuffer <T> {
      private Lock lock = new ReentrantLock();
      private Condition notFull = lock.newCondition();
      private Condition notEmpty = lock.newCondition();
+     Logger LOGGER = Logger.getLogger(MyMapReduce.class.getName());
 
 
      /**
@@ -36,12 +41,18 @@ public class BoundedBuffer <T> {
       */
      public void deposit(T item) throws InterruptedException {
           lock.lock();
-          while (count == capacity)
+          while (count == capacity) {
+               //LOGGER.log(Level.INFO, "notFull.await();");
                notFull.await();
+               //LOGGER.log(Level.INFO, "return from notFull.await();");
+          }
+
           buff[rear] = item;
           rear = (rear + 1) % capacity;
           count++;
+          //LOGGER.log(Level.INFO, "notEmpty.signal()");
           notEmpty.signal();
+
           //System.out.println(Thread.currentThread()+"produced "+item);
           lock.unlock();
      }
@@ -53,11 +64,15 @@ public class BoundedBuffer <T> {
       */
      public T fetch() throws InterruptedException {
           lock.lock();
-          while (count == 0)
+          while (count == 0) {
+               //LOGGER.log(Level.INFO, "notEmpty.await()");
                notEmpty.await();
+               //LOGGER.log(Level.INFO, "return from notEmpty.await()");
+          }
           T temp = buff[front];
           front = (front + 1) % capacity;
           count--;
+          //LOGGER.log(Level.INFO, "notFull.signal()");
           notFull.signal();
           //System.out.println(Thread.currentThread()+"consumed "+temp);
           lock.unlock();

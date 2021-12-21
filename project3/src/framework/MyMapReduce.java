@@ -7,7 +7,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 public class MyMapReduce extends MapReduce {
-	//TODO: your code here. Define all attributes 
+	//TODO: your code here. Define all attributes
 	//What is in a running instance of MapReduce?
 	private PartitionTable pTable;
 	private ConcurrentKVStore kvStore;
@@ -62,7 +62,7 @@ public class MyMapReduce extends MapReduce {
 			kv = (KVPair)partition.fetch();
 			while (kv.key != null) {
 				kvStore.put(kv.key, kv.value);
-				if (uniqueKeys.contains(kv.key)) {
+				if (!uniqueKeys.contains(kv.key)) {
 					uniqueKeys.add(kv.key);
 				}
 				kv = (KVPair)partition.fetch();
@@ -86,9 +86,9 @@ public class MyMapReduce extends MapReduce {
 		NULL when the key's values have been processed.
 		 */
 
-		kvStore.get(key);
+		return kvStore.remove(key);
 				 
-		throw new UnsupportedOperationException();
+		//throw new UnsupportedOperationException();
 	}
 	@Override
 	protected void MRRunHelper(String inputFileName,
@@ -113,16 +113,37 @@ public class MyMapReduce extends MapReduce {
 			//create i reducer threads which do internal function reduce(pt[0...i]) that moves
 				// KVs from pt[i]-->ConcurrentStore then calls user-defined Reduce(key, i) for each
 				// key in pt[i]
-		Thread[] mappers = new Thread[numMappers];
-		Thread[] reducers = new Thread[numReducers];
+		mappers = new Thread[numMappers];
+		reducers = new Thread[numReducers];
 		String splitFile;
 		for(int i = 0; i < numMappers; i++) {
 			splitFile = String.format(inputFileName + ".%02d", i);
 			mappers[i] = new Thread(new Mapper(splitFile, pTable, client));
+			mappers[i].start();
+			//reducers[i] = new Thread(new Reducer(pTable.partitions[i], i, client));
+			reducers[i] = new Thread(new Reducer(pTable.partitions[i], i, client));
+			reducers[i].start();
+
 		}
+/*
 		for(int i = 0; i < numReducers; i++) {
 			reducers[i] = new Thread(new Reducer(pTable.partitions[i], i, client));
+			reducers[i].start();
 		}
+
+ */
+
+		for(int i = 0; i < numMappers; i++) {
+			try {
+				mappers[i].join();
+				reducers[i].join();
+			} catch(Exception e) {
+				LOGGER.log(Level.INFO, "line 136");
+			}
+
+		}
+
+
 
 		/*
 			Map(file)-->{while (token=file.nextLine)!=null->MREmit(token, "1")}
@@ -134,7 +155,7 @@ public class MyMapReduce extends MapReduce {
 	}
 
 
-	private class Mapper implements Runnable {
+	private class Mapper extends Thread  {
 		PartitionTable pTable;
 		String inputSource;
 		MapperReducerClientAPI client;
@@ -144,12 +165,13 @@ public class MyMapReduce extends MapReduce {
 			this.inputSource = inputSource;
 			this.client = client;
 			/**/
-			run();
+			//run();
 		}
 
 		@Override
 		public void run() {
 			//create i mapper threads which do function mapperReducerObj.Map(pw[0...i])
+			LOGGER.log(Level.INFO, "Mapper started");
 			client.Map(inputSource);
 			lock.lock();
 			numMappersDone++;
@@ -176,10 +198,11 @@ public class MyMapReduce extends MapReduce {
 			this.partition = p;
 			this.pNum = i;
 			this.client = client;
-			run();
+			//run();
 		}
 		@Override
 		public void run() {
+			LOGGER.log(Level.INFO, "Reducer started");
 			//do intermediate reduce:
 			LinkedList<Object> uniqueKeys = intermediateReduce(partition);
 			Object key;
