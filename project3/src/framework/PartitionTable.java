@@ -18,16 +18,9 @@ class PartitionTable {
     }
 
 
-    class Partition<kvPair> extends BoundedBuffer {
+    class Partition<KVPair> extends BoundedBuffer {
         //TODO: your codde here
-        class KVPair {
-            Object key;
-            Object value;
-            public KVPair(Object key, Object value) {
-                this.key = key;
-                this.value = value;
-            }
-        }
+
         Partition() {
             super(50);
         }
@@ -39,11 +32,12 @@ class PartitionTable {
         // into different partitions.
 
         public void deposit(Object key, Object value) throws InterruptedException {
-            super.deposit(new KVPair(key, value));
+            super.deposit(new MyMapReduce.KVPair(key, value));
         }
 
-        public Object fetch() throws InterruptedException {
-            return super.fetch();
+        @Override
+        public KVPair fetch() throws InterruptedException {
+            return (KVPair)super.fetch();
         }
     }
 

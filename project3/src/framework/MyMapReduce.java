@@ -20,7 +20,14 @@ public class MyMapReduce extends MapReduce {
 	private Thread[] mappers;
 	private Thread[] reducers;
 
-
+	public static class KVPair {
+		Object key;
+		Object value;
+		public KVPair(Object key, Object value) {
+			this.key = key;
+			this.value = value;
+		}
+	}
 
 	public void MREmit(Object key, Object value)  //KV from File-->PartitionTable
 	{
