@@ -1,3 +1,8 @@
+cybersla.*
+out_*
+test.*
+
+
 # Compiled class file
 *.class
 
