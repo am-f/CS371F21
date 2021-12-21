@@ -1,5 +1,9 @@
 package framework;
 
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 // All reducers also have concurrent access to a kv store which maps
 // a key to all the value associated to the key, for instace
 // if reducer_i has fetched ("foo", 1) ("bar",1) ("foo",1)
@@ -16,6 +20,8 @@ public class ConcurrentKVStore<K, V> {
     int size;
     double loadfactor;
     Entry<K,V>[] table;
+    Lock[] tableLocks;
+    Lock miscAttributesLock;
 
     public ConcurrentKVStore() {
         this(16);
@@ -30,6 +36,12 @@ public class ConcurrentKVStore<K, V> {
         this.size = 0;
         this.loadfactor = loadfactor;
         this.table = (Entry<K,V>[]) new Entry[capacity];
+        
+        for(int i = 0; i < capacity; i++){
+            this.tableLocks[i] = new ReentrantLock();
+        }
+
+        this.miscAttributeLock = new ReentrantLock();
     }
 /*
     public String show() {
@@ -49,7 +61,7 @@ public class ConcurrentKVStore<K, V> {
     }
 */
     public V get(Object arg0) {
-        K key = (K)arg0;
+        K key = (K) arg0;
         Entry<K,V> e = find(index(key), key);
         if(e != null) return e.getValue();
         return null;
@@ -64,16 +76,23 @@ public class ConcurrentKVStore<K, V> {
     }
 
     private Entry<K,V> find(int index, K key) {
+        
+        this.tableLocks[index].lock();//turn on lock for tableLocks[index]
         Entry<K,V> e = table[index];
+
         while(e != null) {
             if (e.getKey().equals(key)) break;
             e = e.next;
         }
+
+        this.tableLocks[index].unlock();//turn off lock for tableLocks[index]
         return e;
     }
 
     public V put(K arg0, V arg1) {
         int i = index(arg0);
+        
+        this.tableLocks[i].lock();//turn on locks for tableLocks[i]
         if(table[i] == null) {
             table[i] = new Entry<K,V>(arg0, arg1);
         } else {
@@ -89,11 +108,16 @@ public class ConcurrentKVStore<K, V> {
             }
             e.next = new Entry<K,V>(arg0, arg1);
         }
+        
+        this.tableLocks[index].unlock();//turn off locks for tableLocks[i]
+
+        this.miscAttributeLock.lock();//turn on locks for main table attributes
         size++;
         if(size > capacity*loadfactor) {
             capacity *= 2;
             rehash();
         }
+        this.miscAttributeLock.unlock();//turn on locks for main table attributes
         return null;
     }
 
@@ -143,6 +167,8 @@ public class ConcurrentKVStore<K, V> {
         private K key;
         private V val;
         private Entry<K,V> next;
+        
+
 
         public Entry(K key, V val) {
             this.key = key;
