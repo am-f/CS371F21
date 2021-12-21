@@ -119,9 +119,11 @@ public class MyMapReduce extends MapReduce {
 		for(int i = 0; i < numMappers; i++) {
 			splitFile = String.format(inputFileName + ".%02d", i);
 			mappers[i] = new Thread(new Mapper(splitFile, pTable, client));
+			mappers[i].setName("Mapper-" + i);
 			mappers[i].start();
 			//reducers[i] = new Thread(new Reducer(pTable.partitions[i], i, client));
 			reducers[i] = new Thread(new Reducer(pTable.partitions[i], i, client));
+			reducers[i].setName("Reducer-" + i);
 			reducers[i].start();
 
 		}

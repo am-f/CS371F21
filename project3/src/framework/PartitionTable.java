@@ -21,9 +21,11 @@ class PartitionTable {
     class Partition<KVPair> extends BoundedBuffer {
         //TODO: your codde here
 
-        Partition() {
-            super(50);
-        }
+       //Partition() {super(50);}
+       Partition() {
+           super(50);
+       }
+
         //Notes:
         // (1) each partition works like a bounded buffer between
         // mappers and a reducer. (you can assume size = 10 or 50)
