@@ -23,7 +23,7 @@ class PartitionTable {
 
         //Partition() {super(50);}
         Partition() {
-            super(3);
+            super(10000);
 
         }
 

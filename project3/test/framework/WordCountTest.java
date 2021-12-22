@@ -2,8 +2,11 @@ package framework;
 import java.io.*;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class WordCountTest {
+    //Logger LOGGER = Logger.getLogger(MyMapReduce.class.getName());
     private int[] stats ;
     private class WordCount extends MapperReducerClientAPI {
         private MapReduce myMapReduce;
@@ -15,7 +18,16 @@ public class WordCountTest {
             String fileName = (String) inputSource;
             try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
                 String token;
+                //int i = 0;
                 while ((token = br.readLine()) != null) {
+                    /*
+                    if(i % 250000 == 0 && i >= 100) {
+                        LOGGER.log(Level.INFO,
+                                Thread.currentThread().getName() + " emit line " + i);
+                    }
+                    i++;
+
+                         */
                     myMapReduce.MREmit(token, "1"); //puts KV in buffer via partition table
                 }
 

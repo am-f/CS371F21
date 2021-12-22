@@ -66,12 +66,21 @@ public class MyMapReduce extends MapReduce {
 		//throw new UnsupportedOperationException();
 	}
 	private LinkedList intermediateReduce(PartitionTable.Partition partition) {
+		//LOGGER.log(Level.INFO, Thread.currentThread().getName() + " start intermediateReduce");
 		LinkedList<Object> uniqueKeys = new LinkedList();
 
 		KVPair kv;
+		//int i = 0;
 		try {
 			kv = (KVPair)partition.fetch();
 			while (kv.key != null) {
+				/*
+				if(i % 250000 == 0 && i >= 100) {
+					LOGGER.log(Level.INFO,
+							Thread.currentThread().getName() + "move " + kv.key + "to kvStore");
+				}
+				i++;
+				 */
 				kvStore.put(kv.key, kv.value);
 				if (!uniqueKeys.contains(kv.key)) {
 					uniqueKeys.add(kv.key);
@@ -145,11 +154,13 @@ public class MyMapReduce extends MapReduce {
 			splitFile = String.format(inputFileName + ".%02d", i);
 			mappers[i] = new Thread(new Mapper(splitFile, pTable, client));
 			mappers[i].setName("Mapper-" + i);
+			mappers[i].setPriority(10);
 			mappers[i].start();
 		}
 		for(int i = 0; i < numReducers; i++) {
 			reducers[i] = new Thread(new Reducer(pTable.partitions[i], i, client));
 			reducers[i].setName("Reducer-" + i);
+			reducers[i].setPriority(5);
 			reducers[i].start();
 		}
 
@@ -193,7 +204,7 @@ public class MyMapReduce extends MapReduce {
 		@Override
 		public void run() {
 			//create i mapper threads which do function mapperReducerObj.Map(pw[0...i])
-			LOGGER.log(Level.INFO, Thread.currentThread().getName() + " started");
+			//LOGGER.log(Level.INFO, Thread.currentThread().getName() + " started");
 			client.Map(inputSource);
 			lock.lock();
 			numMappersDone++;
@@ -210,7 +221,7 @@ public class MyMapReduce extends MapReduce {
 			} finally {
 				lock.unlock();
 			}
-			LOGGER.log(Level.INFO, Thread.currentThread().getName() + " complete");
+			//LOGGER.log(Level.INFO, Thread.currentThread().getName() + " complete");
 		}
 	}
 	private class Reducer implements Runnable {
@@ -226,20 +237,22 @@ public class MyMapReduce extends MapReduce {
 		}
 		@Override
 		public void run() {
-			LOGGER.log(Level.INFO, Thread.currentThread().getName() + " started");
+			//LOGGER.log(Level.INFO, Thread.currentThread().getName() + " started");
 			//do intermediate reduce:
 			LinkedList<Object> uniqueKeys = intermediateReduce(partition);
 			Object key;
 			//intermediateReduce will not return until all mappers are done
 			//do user reduce for each unique key in pTable
+			/*
 			LOGGER.log(Level.INFO, Thread.currentThread().getName() + " intermediateReduce " +
 					"complete");
+			 */
 			while(((key = uniqueKeys.pollFirst()) != null)) {
 				//LOGGER.log(Level.INFO, "" + Thread.currentThread().getName() + "started key " +
 				// key);
 				client.Reduce(key, pNum);
 			}
-			LOGGER.log(Level.INFO, Thread.currentThread().getName() + " complete");
+			//LOGGER.log(Level.INFO, Thread.currentThread().getName() + " complete");
 
 
 

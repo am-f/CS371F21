@@ -42,15 +42,15 @@ public class BoundedBuffer <T> {
      public void deposit(T item) throws InterruptedException {
           lock.lock();
           while (count == capacity) {
-               //LOGGER.log(Level.INFO, "notFull.await();");
+               //LOGGER.log(Level.INFO, Thread.currentThread().getName() + " notFull.await();");
                notFull.await();
-               //LOGGER.log(Level.INFO, "return from notFull.await();");
+               //LOGGER.log(Level.INFO, Thread.currentThread().getName() + " return from notFull");
           }
 
           buff[rear] = item;
           rear = (rear + 1) % capacity;
           count++;
-          //LOGGER.log(Level.INFO, "notEmpty.signal()");
+          //LOGGER.log(Level.INFO, Thread.currentThread().getName() + " notEmpty.signal();");
           notEmpty.signal();
 
           //System.out.println(Thread.currentThread()+"produced "+item);
@@ -65,14 +65,14 @@ public class BoundedBuffer <T> {
      public T fetch() throws InterruptedException {
           lock.lock();
           while (count == 0) {
-               //LOGGER.log(Level.INFO, "notEmpty.await()");
+               //LOGGER.log(Level.INFO, Thread.currentThread().getName() + " notEmpty.await()");
                notEmpty.await();
-               //LOGGER.log(Level.INFO, "return from notEmpty.await()");
+               //LOGGER.log(Level.INFO, Thread.currentThread().getName() + " return from notEmpty");
           }
           T temp = buff[front];
           front = (front + 1) % capacity;
           count--;
-          //LOGGER.log(Level.INFO, "notFull.signal()");
+          //LOGGER.log(Level.INFO, Thread.currentThread().getName() + " notFull.signal();");
           notFull.signal();
           //System.out.println(Thread.currentThread()+"consumed "+temp);
           lock.unlock();

@@ -30,12 +30,17 @@ public class ConcurrentKVStore<K, V> {
     Condition rehashDone = rehashLock.newCondition();
     Condition rehashCV = rehashLock.newCondition();
     boolean rehash = false;
-    //public ConcurrentKVStore() {this(16);}
+
+    public ConcurrentKVStore() {
+        this(16);
+    }
 
 
+    /*
     public ConcurrentKVStore() {
         this(4);
     }
+     */
     public ConcurrentKVStore(int capacity) {
         this(capacity, 0.75);
     }
@@ -70,9 +75,11 @@ public class ConcurrentKVStore<K, V> {
             return sb.toString();
         }
     */
+    /*
     public V get(Object arg0) {
 
         K key = (K)arg0;
+
         int i = index(key);
         ReentrantLock lock = tableLocks[i];
 
@@ -106,6 +113,8 @@ public class ConcurrentKVStore<K, V> {
         if(e != null) return e.getValue();
         return null;
     }
+
+     */
 
     public boolean isEmpty() {
         return size() == 0;
@@ -193,11 +202,14 @@ public class ConcurrentKVStore<K, V> {
             lock.unlock();//turn off locks for tableLocks[i]
             //miscAttributeLock.lock();//turn on locks for main table attributes, this is unlocked
             // in rehash or in else statement
+            rehashLock.lock();
             size++;
-            if (size > capacity * loadfactor && !(rehashLock.isHeldByCurrentThread())) {
+            if (size > capacity * loadfactor && rehash == false) {
+                rehashLock.unlock();
                 //miscAttributeLock.unlock();
                 rehash();
             } else {
+                rehashLock.unlock();
                 //miscAttributeLock.unlock();
             }
 
@@ -209,6 +221,7 @@ public class ConcurrentKVStore<K, V> {
         //turn on locks for main table attributes
         //lock it down
         rehashLock.lock();
+        //LOGGER.log(Level.INFO, Thread.currentThread().getName() + " start rehash");
         rehash = true;
         boolean allLocked = true;
         for(int i = 0; i < capacity; i++) {
@@ -254,6 +267,7 @@ public class ConcurrentKVStore<K, V> {
          */
         rehash = false;
         //rehashDone.signalAll();
+        //LOGGER.log(Level.INFO, Thread.currentThread().getName() + " rehash complete");
         rehashLock.unlock();
 
 
@@ -337,7 +351,9 @@ public class ConcurrentKVStore<K, V> {
             table[i] = e.next;
             e.next = null;
             //miscAttributeLock.lock();
+            rehashLock.lock();
             size--;
+            rehashLock.unlock();
             //miscAttributeLock.unlock();
             lock.unlock();
             return e.getValue();
@@ -349,7 +365,9 @@ public class ConcurrentKVStore<K, V> {
                     e_prev.next = e_curr.next;
                     e_curr.next = null;
                     //miscAttributeLock.lock();
+                    rehashLock.lock();
                     size--;
+                    rehashLock.unlock();
                     //miscAttributeLock.unlock();
                     tableLocks[i].unlock();
                     return e_curr.getValue();
