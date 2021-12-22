@@ -1,6 +1,11 @@
 cybersla.*
 out_*
 test.*
+project3/res/*
+/project3/res/
+project3/res/
+res/
+
 
 
 # Compiled class file
