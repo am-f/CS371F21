@@ -3,7 +3,7 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-            /***Don't touch this file!!***/
+
 public abstract class MapReduce {
     // for final output
     protected PrintWriter[] pw;
@@ -30,12 +30,12 @@ public abstract class MapReduce {
     abstract protected void MRRunHelper(String inputFileName,
                                         MapperReducerClientAPI mapperReducerObj,
                                         int num_mappers,
-                                        int num_reducers);
+                                        int num_reducers) ;
 
     public void MRPostProcess(String key, int value, int partNum) {
         //The following is only IO for post-process
         pw[partNum].printf("%s:%d\n", (String)key, value);
-       
+
     }
     protected void setup (int nSplits, String inputFile) {
         try {
@@ -43,13 +43,10 @@ public abstract class MapReduce {
             //split input into as many as nSplits files.
             //If split.sh doesn't work for you because you are developing on a windows PC, you can comment the lines underneath
             //to skip spliting process, copy pre-split data to res/ and then proceed.
-            /*
             Process p = Runtime.getRuntime().exec(new String[] { "/bin/bash" , "-c", "./res/split.sh "+inputFile +" " +nSplits});
             p.waitFor();
             int exitVal = p.exitValue();
             assert(exitVal == 0);
-
-             */
             pw = new PrintWriter[nSplits];
             for(int i=0; i<nSplits;i++) {
                 pw[i]=new PrintWriter(new FileWriter("res/out_0"+i));
@@ -65,13 +62,10 @@ public abstract class MapReduce {
         LOGGER.log(Level.INFO, "Total runtime of your maps and reduces:" + stopWatch.getElapsedTime() + " secs");
         for (int i=0; i<nMappers; i++)
             pw[i].close();
-
         try {
             //Again, if you are developing on a windows PC, you need to find a line comparasion tool to compare
             //the expected output with your output manually.
-
-            Process p = Runtime.getRuntime().exec(new String[] { "/bin/sh" , "-c", "./res/test" +
-                    ".sh "+inputFile});
+            Process p = Runtime.getRuntime().exec(new String[] { "/bin/sh" , "-c", "./res/test.sh "+inputFile});
             p.waitFor();
             int exitVal = p.exitValue();
             if(exitVal == 0) {
@@ -80,14 +74,10 @@ public abstract class MapReduce {
                 LOGGER.log(Level.INFO, "FAILED, process exit value = {0}", exitVal);
             }
             return exitVal;
-
-
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.toString());
             return -1;
         }
-
-        //return 0;
 
 
     }
