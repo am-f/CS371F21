@@ -1,3 +1,10 @@
+cybersla.*
+out_*
+test.*
+project3/res/*
+
+
+
 # Compiled class file
 *.class
 
