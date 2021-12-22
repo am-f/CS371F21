@@ -1,6 +1,7 @@
 package framework;
 import utils.BoundedBuffer;
 import java.util.LinkedList;
+import java.util.ArrayList;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -85,16 +86,30 @@ public class MyMapReduce extends MapReduce {
 		returned;  MRGetNext() returns a value object passed in by the MREmit() function above, or
 		NULL when the key's values have been processed.
 		 */
+		LOGGER.log(Level.INFO, "now reducing " + key + " " + partition_number);
+		LinkedList<Object> values = new LinkedList<Object>();
+		Object v = kvStore.remove(key);
+		if(v == null) {
+			return null;
+		}
+		else {
+			return v;
+		}
+		/*
+		while(v != null) {
+			values.add(v);
+			v = kvStore.remove(key);
+		}
 
-		return kvStore.remove(key);
-				 
+		return values;
+				 */
 		//throw new UnsupportedOperationException();
 	}
 	@Override
 	protected void MRRunHelper(String inputFileName,
-		    		  MapperReducerClientAPI mapperReducerObj,
-		    		  int num_mappers, 
-		    		  int num_reducers)
+							   MapperReducerClientAPI mapperReducerObj,
+							   int num_mappers,
+							   int num_reducers)
 	{
 		//TODO: your code here. Delete UnsupportedOperationException after your implementation is done.
 
@@ -108,11 +123,11 @@ public class MyMapReduce extends MapReduce {
 		numReducers = num_reducers;
 		// creates and calls threads
 		//steps:
-			//create i mapper threads which do function mapperReducerObj.Map(pw[0...i])
-				//after a mapper thread calls Map(pw[i]); call MREmit(null, null);
-			//create i reducer threads which do internal function reduce(pt[0...i]) that moves
-				// KVs from pt[i]-->ConcurrentStore then calls user-defined Reduce(key, i) for each
-				// key in pt[i]
+		//create i mapper threads which do function mapperReducerObj.Map(pw[0...i])
+		//after a mapper thread calls Map(pw[i]); call MREmit(null, null);
+		//create i reducer threads which do internal function reduce(pt[0...i]) that moves
+		// KVs from pt[i]-->ConcurrentStore then calls user-defined Reduce(key, i) for each
+		// key in pt[i]
 		mappers = new Thread[numMappers];
 		reducers = new Thread[numReducers];
 		String splitFile;
@@ -121,19 +136,14 @@ public class MyMapReduce extends MapReduce {
 			mappers[i] = new Thread(new Mapper(splitFile, pTable, client));
 			mappers[i].setName("Mapper-" + i);
 			mappers[i].start();
-			//reducers[i] = new Thread(new Reducer(pTable.partitions[i], i, client));
+		}
+		for(int i = 0; i < numReducers; i++) {
 			reducers[i] = new Thread(new Reducer(pTable.partitions[i], i, client));
 			reducers[i].setName("Reducer-" + i);
 			reducers[i].start();
-
-		}
-/*
-		for(int i = 0; i < numReducers; i++) {
-			reducers[i] = new Thread(new Reducer(pTable.partitions[i], i, client));
-			reducers[i].start();
 		}
 
- */
+
 
 		for(int i = 0; i < numMappers; i++) {
 			try {
@@ -173,7 +183,7 @@ public class MyMapReduce extends MapReduce {
 		@Override
 		public void run() {
 			//create i mapper threads which do function mapperReducerObj.Map(pw[0...i])
-			LOGGER.log(Level.INFO, "Mapper started");
+			LOGGER.log(Level.INFO, Thread.currentThread().getName() + " started");
 			client.Map(inputSource);
 			lock.lock();
 			numMappersDone++;
@@ -204,22 +214,23 @@ public class MyMapReduce extends MapReduce {
 		}
 		@Override
 		public void run() {
-			LOGGER.log(Level.INFO, "Reducer started");
+			LOGGER.log(Level.INFO, Thread.currentThread().getName() + " started");
 			//do intermediate reduce:
 			LinkedList<Object> uniqueKeys = intermediateReduce(partition);
 			Object key;
-				//intermediateReduce will not return until all mappers are done
-				//do user reduce for each unique key in pTable
+			//intermediateReduce will not return until all mappers are done
+			//do user reduce for each unique key in pTable
 			while(((key = uniqueKeys.pollFirst()) != null)) {
+				LOGGER.log(Level.INFO, "Reduce started key " + key);
 				client.Reduce(key, pNum);
 			}
 
 
 
 
-				//create i reducer threads which do internal function reduce(pt[0...i]) that moves
-				// KVs from pt[i]-->ConcurrentStore then calls user-defined Reduce(key, i) for each
-				// key in pt[i]
+			//create i reducer threads which do internal function reduce(pt[0...i]) that moves
+			// KVs from pt[i]-->ConcurrentStore then calls user-defined Reduce(key, i) for each
+			// key in pt[i]
 
 
 		}
