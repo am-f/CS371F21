@@ -43,10 +43,13 @@ public abstract class MapReduce {
             //split input into as many as nSplits files.
             //If split.sh doesn't work for you because you are developing on a windows PC, you can comment the lines underneath
             //to skip spliting process, copy pre-split data to res/ and then proceed.
+            /*
             Process p = Runtime.getRuntime().exec(new String[] { "/bin/bash" , "-c", "./res/split.sh "+inputFile +" " +nSplits});
             p.waitFor();
             int exitVal = p.exitValue();
             assert(exitVal == 0);
+
+             */
             pw = new PrintWriter[nSplits];
             for(int i=0; i<nSplits;i++) {
                 pw[i]=new PrintWriter(new FileWriter("res/out_0"+i));
