@@ -34,7 +34,7 @@ public class ConcurrentKVStore<K, V> {
 
 
     public ConcurrentKVStore() {
-        this(16);
+        this(4);
     }
     public ConcurrentKVStore(int capacity) {
         this(capacity, 0.75);
@@ -72,28 +72,37 @@ public class ConcurrentKVStore<K, V> {
     */
     public V get(Object arg0) {
 
-        if(rehashLock.isHeldByCurrentThread()) {
-            //keep moving
+        K key = (K)arg0;
+        int i = index(key);
+        ReentrantLock lock = tableLocks[i];
+
+        if(rehashLock.isHeldByCurrentThread() && rehash == true) {
+            lock.lock();
         }
-        else {
-            rehashLock.lock();
+        else if(rehash == true) {
             try {
-                while (rehash == true) {
-                    LOGGER.log(Level.INFO, "" + Thread.currentThread().getName() + " await");
-                    rehashDone.await();
-                    LOGGER.log(Level.INFO, "" + Thread.currentThread().getName() + " done await");
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                LOGGER.log(Level.INFO, "" + Thread.currentThread().getName() + " line 88");
-            } finally {
-
+                //rehashDone.await();
+                //rehashLock.wait();
+                //rehashLock.lock();
+                rehashLock.lock();
                 rehashLock.unlock();
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                //rehashLock.unlock();
             }
+
+            i = index(key);
+            lock = tableLocks[i];
+            lock.lock();
+        } else {
+            i = index(key);
+            lock = tableLocks[i];
+            lock.lock();
         }
 
-        K key = (K) arg0;
         Entry<K,V> e = find(index(key), key);
+        lock.unlock();
         if(e != null) return e.getValue();
         return null;
     }
@@ -130,7 +139,32 @@ public class ConcurrentKVStore<K, V> {
 
         int i = index(arg0);
         V ret = null;
-        tableLocks[i].lock();//turn on locks for tableLocks[i]
+        ReentrantLock lock = tableLocks[i];
+
+        if(rehashLock.isHeldByCurrentThread() && rehash == true) {
+            lock.lock();
+        }
+        else if(rehash == true) {
+            try {
+                //rehashDone.await();
+                //rehashLock.wait();
+                //rehashLock.lock();
+                rehashLock.lock();
+                rehashLock.unlock();
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                //rehashLock.unlock();
+            }
+
+            i = index(arg0);
+            lock = tableLocks[i];
+            lock.lock();
+        } else {
+            i = index(arg0);
+            lock = tableLocks[i];
+            lock.lock();
+        }
         try {
             if (table[i] == null) {
                 table[i] = new Entry<K, V>(arg0, arg1);
@@ -156,11 +190,11 @@ public class ConcurrentKVStore<K, V> {
         } catch (Exception c) {
             c.printStackTrace();
         } finally {
-            tableLocks[i].unlock();//turn off locks for tableLocks[i]
+            lock.unlock();//turn off locks for tableLocks[i]
             //miscAttributeLock.lock();//turn on locks for main table attributes, this is unlocked
             // in rehash or in else statement
             size++;
-            if (size > capacity * loadfactor) {
+            if (size > capacity * loadfactor && !(rehashLock.isHeldByCurrentThread())) {
                 //miscAttributeLock.unlock();
                 rehash();
             } else {
@@ -174,7 +208,8 @@ public class ConcurrentKVStore<K, V> {
     private void rehash() {
         //turn on locks for main table attributes
         //lock it down
-
+        rehashLock.lock();
+        rehash = true;
         boolean allLocked = true;
         for(int i = 0; i < capacity; i++) {
             tableLocks[i].lock();
@@ -209,12 +244,19 @@ public class ConcurrentKVStore<K, V> {
         for(int i = capacity - 1; i >= 0; i--) {
             tableLocks[i].unlock();
         }
+
+        /*
         for(int i = oldCapacity - 1; i >= 0; i--) {
             oldLocks[i].unlock();
         }
-
-        oldLocks = null;
+                oldLocks = null;
         oldTable = null;
+         */
+        rehash = false;
+        //rehashDone.signalAll();
+        rehashLock.unlock();
+
+
 
        /*
 
@@ -260,9 +302,34 @@ public class ConcurrentKVStore<K, V> {
 
         K key = (K)arg0;
         int i = index(key);
-        tableLocks[i].lock();
+        ReentrantLock lock = tableLocks[i];
+
+        if(rehashLock.isHeldByCurrentThread() && rehash == true) {
+            lock.lock();
+        }
+        else if(rehash == true) {
+            try {
+                //rehashDone.await();
+                //rehashLock.wait();
+                //rehashLock.lock();
+                rehashLock.lock();
+                rehashLock.unlock();
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                //rehashLock.unlock();
+            }
+
+            i = index(key);
+            lock = tableLocks[i];
+            lock.lock();
+        } else {
+            i = index(key);
+            lock = tableLocks[i];
+            lock.lock();
+        }
         if(table[i] == null) {
-            tableLocks[i].unlock();
+            lock.unlock();
             return null;
         }
         else if(table[i].getKey().equals(key)) {
@@ -272,7 +339,7 @@ public class ConcurrentKVStore<K, V> {
             //miscAttributeLock.lock();
             size--;
             //miscAttributeLock.unlock();
-            tableLocks[i].unlock();
+            lock.unlock();
             return e.getValue();
         } else {
             Entry<K,V> e_prev = table[i];
@@ -290,7 +357,7 @@ public class ConcurrentKVStore<K, V> {
                 e_prev = e_curr;
                 e_curr = e_curr.next;
             }
-            tableLocks[i].unlock();
+            lock.unlock();
             return null;
         }
     }

@@ -65,10 +65,13 @@ public abstract class MapReduce {
         LOGGER.log(Level.INFO, "Total runtime of your maps and reduces:" + stopWatch.getElapsedTime() + " secs");
         for (int i=0; i<nMappers; i++)
             pw[i].close();
+
         try {
             //Again, if you are developing on a windows PC, you need to find a line comparasion tool to compare
             //the expected output with your output manually.
-            Process p = Runtime.getRuntime().exec(new String[] { "/bin/sh" , "-c", "./res/test.sh "+inputFile});
+
+            Process p = Runtime.getRuntime().exec(new String[] { "/bin/sh" , "-c", "./res/test" +
+                    ".sh "+inputFile});
             p.waitFor();
             int exitVal = p.exitValue();
             if(exitVal == 0) {
@@ -77,10 +80,14 @@ public abstract class MapReduce {
                 LOGGER.log(Level.INFO, "FAILED, process exit value = {0}", exitVal);
             }
             return exitVal;
+
+
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.toString());
             return -1;
         }
+
+        //return 0;
 
 
     }

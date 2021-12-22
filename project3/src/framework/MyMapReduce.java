@@ -29,13 +29,23 @@ public class MyMapReduce extends MapReduce {
 			this.value = value;
 		}
 	}
+	public static class EOS {
+		int key;
+		public EOS(int pNum) {
+			key = pNum;
+		}
+	}
 
 	public void MREmit(Object key, Object value)  //KV from File-->PartitionTable
 	{
 		//TODO: your code here. Delete UnsupportedOperationException after your implementation is done.
-
-
-		int pNum = (int)client.Partitioner(key, numMappers);
+		int pNum;
+		if(key instanceof EOS) {
+			pNum = ((EOS) key).key;
+			key = null;
+		} else {
+			pNum = (int)client.Partitioner(key, numMappers);
+		}
 		try {
 			pTable.partitions[pNum].deposit(key, value);
 
@@ -86,7 +96,7 @@ public class MyMapReduce extends MapReduce {
 		returned;  MRGetNext() returns a value object passed in by the MREmit() function above, or
 		NULL when the key's values have been processed.
 		 */
-		LOGGER.log(Level.INFO, "now reducing " + key + " " + partition_number);
+		//LOGGER.log(Level.INFO, "now reducing " + key + " " + partition_number);
 		LinkedList<Object> values = new LinkedList<Object>();
 		Object v = kvStore.remove(key);
 		if(v == null) {
@@ -191,14 +201,16 @@ public class MyMapReduce extends MapReduce {
 				if (numMappersDone == numMappers) {
 					allMappersDone = true;
 					for (int i = 0; i < pTable.size(); i++) {
-						pTable.partitions[i].deposit(null, null);
+						EOS eos = new EOS(i);
+						MREmit(eos, null);
 					}
 				}
-			} catch (InterruptedException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
 				lock.unlock();
 			}
+			LOGGER.log(Level.INFO, Thread.currentThread().getName() + " complete");
 		}
 	}
 	private class Reducer implements Runnable {
@@ -220,10 +232,14 @@ public class MyMapReduce extends MapReduce {
 			Object key;
 			//intermediateReduce will not return until all mappers are done
 			//do user reduce for each unique key in pTable
+			LOGGER.log(Level.INFO, Thread.currentThread().getName() + " intermediateReduce " +
+					"complete");
 			while(((key = uniqueKeys.pollFirst()) != null)) {
-				LOGGER.log(Level.INFO, "Reduce started key " + key);
+				//LOGGER.log(Level.INFO, "" + Thread.currentThread().getName() + "started key " +
+				// key);
 				client.Reduce(key, pNum);
 			}
+			LOGGER.log(Level.INFO, Thread.currentThread().getName() + " complete");
 
 
 
