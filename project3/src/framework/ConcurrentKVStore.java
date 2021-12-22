@@ -221,7 +221,7 @@ public class ConcurrentKVStore<K, V> {
         //turn on locks for main table attributes
         //lock it down
         rehashLock.lock();
-        //LOGGER.log(Level.INFO, Thread.currentThread().getName() + " start rehash");
+        LOGGER.log(Level.INFO, Thread.currentThread().getName() + " start rehash");
         rehash = true;
         boolean allLocked = true;
         for(int i = 0; i < capacity; i++) {
@@ -267,7 +267,7 @@ public class ConcurrentKVStore<K, V> {
          */
         rehash = false;
         //rehashDone.signalAll();
-        //LOGGER.log(Level.INFO, Thread.currentThread().getName() + " rehash complete");
+        LOGGER.log(Level.INFO, Thread.currentThread().getName() + " rehash complete");
         rehashLock.unlock();
 
 
